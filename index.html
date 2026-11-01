@@ -33,10 +33,11 @@
     <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
 
     <style>
+        html, body { max-width: 100%; overflow-x: hidden; }
         body { font-family: 'Tajawal', sans-serif; transition: background-color 0.3s, color 0.3s; }
         .tab-btn.active { border-bottom: 3px solid #3b82f6; color: #3b82f6; font-weight: 800; }
         .dark .tab-btn.active { border-bottom-color: #60a5fa; color: #60a5fa; }
-        .math-text { direction: ltr !important; display: inline-block; font-family: serif; font-size: 1.1em; }
+        .math-text { direction: ltr !important; display: inline-block; max-width: 100%; overflow-x: auto; vertical-align: middle; font-family: serif; font-size: 1.1em; }
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
@@ -45,7 +46,7 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-800 dark:bg-slate-900 dark:text-slate-200 antialiased selection:bg-blue-200 dark:selection:bg-blue-900">
+<body class="bg-slate-50 text-slate-800 dark:bg-slate-900 dark:text-slate-200 antialiased selection:bg-blue-200 dark:selection:bg-blue-900 w-full overflow-x-hidden">
 
     <!-- Header (Compact & Mobile Friendly) -->
     <header class="bg-white dark:bg-slate-800 shadow-sm sticky top-0 z-50 border-b border-slate-200 dark:border-slate-700 transition-colors">
@@ -727,8 +728,8 @@
                 q.o.forEach((opt, optIdx) => {
                     const isAns = (optIdx === q.a);
                     const label = labels[optIdx] || '';
-                    let btnClass = "w-full text-right p-3 sm:p-4 border rounded-xl transition-all font-bold outline-none flex items-center gap-3 text-sm sm:text-base ";
-                    let labelClass = "px-2.5 py-0.5 rounded text-xs sm:text-sm font-extrabold border ";
+                    let btnClass = "w-full text-right p-3 sm:p-4 border rounded-xl transition-all font-bold outline-none flex items-center gap-3 text-sm sm:text-base overflow-hidden ";
+                    let labelClass = "px-2.5 py-0.5 rounded text-xs sm:text-sm font-extrabold border shrink-0 ";
                     
                     if (state) {
                         if (isAns) {
@@ -796,7 +797,7 @@
                 const renderBtn = (isTrueBtn) => {
                     const isAns = (isTrueBtn === q.a);
                     const label = isTrueBtn ? "صح ✔" : "خطأ ✖";
-                    let btnClass = "w-full text-center p-3 sm:p-4 border rounded-xl transition-all font-bold text-sm sm:text-base outline-none ";
+                    let btnClass = "w-full text-center p-3 sm:p-4 border rounded-xl transition-all font-bold text-sm sm:text-base outline-none overflow-hidden ";
                     
                     if (state) {
                         if (isAns) {
