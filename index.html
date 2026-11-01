@@ -3,826 +3,920 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>بنك أسئلة - إدارة مؤسسات مالية</title>
+    <title>بنك أسئلة رياضة وتأمين (النسخة الشاملة) - د/ شيماء جمال</title>
+    
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Tajawal', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    
+    <!-- MathJax for rendering Mathematical Equations -->
+    <script>
+        MathJax = {
+            tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$'], ['\\[', '\\]']] },
+            svg: { fontCache: 'global' }
+        };
+    </script>
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+
     <style>
-        body { font-family: 'Cairo', sans-serif; background-color: #f3f4f6; }
-        .tab-content { display: none; }
-        .tab-content.active { display: block; animation: fadeIn 0.4s; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .option-btn:disabled { cursor: not-allowed; }
-        .hint-box, .explanation-box { display: none; }
-        .hint-box.show, .explanation-box.show { display: block; animation: fadeIn 0.3s; }
-        /* CSS للقوانين بالشكل الرسومي */
-        .frac { display: inline-flex; flex-direction: column; align-items: center; vertical-align: middle; margin: 0 0.5rem; font-weight: bold; font-family: 'Cairo', sans-serif; text-align: center; }
-        .frac span.num { border-bottom: 2px solid #1f2937; padding: 0 0.5rem 0.1rem; width: 100%; }
-        .frac span.den { padding: 0.1rem 0.5rem 0; width: 100%; }
-        .formula-card { background: #fff; padding: 1.25rem; border-radius: 0.75rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid #e5e7eb; display: flex; align-items: center; flex-wrap: wrap; gap: 0.5rem; font-size: 1.1rem;}
+        body { font-family: 'Tajawal', sans-serif; transition: background-color 0.3s, color 0.3s; }
+        .tab-btn.active { border-bottom: 3px solid #3b82f6; color: #3b82f6; font-weight: 800; }
+        .dark .tab-btn.active { border-bottom-color: #60a5fa; color: #60a5fa; }
+        .math-text { direction: ltr !important; display: inline-block; font-family: serif; font-size: 1.1em; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .dark ::-webkit-scrollbar-thumb { background: #475569; }
+        .question-card { animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
-<body class="text-gray-800 antialiased pb-20">
+<body class="bg-slate-50 text-slate-800 dark:bg-slate-900 dark:text-slate-200 antialiased selection:bg-blue-200 dark:selection:bg-blue-900">
 
-    <!-- Header & Score -->
-    <header class="bg-blue-800 text-white shadow-lg sticky top-0 z-50">
-        <div class="container mx-auto px-4 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
-            <div>
-                <h1 class="text-2xl font-bold">إدارة مؤسسات مالية - بنك الأسئلة</h1>
-                <p class="text-sm text-blue-200 mt-1">د/ محمود نبيل | المستوى الرابع - نظم معلومات</p>
+    <!-- Header (Compact & Mobile Friendly) -->
+    <header class="bg-white dark:bg-slate-800 shadow-sm sticky top-0 z-50 border-b border-slate-200 dark:border-slate-700 transition-colors">
+        <div class="max-w-7xl mx-auto px-3 py-2 sm:px-6 lg:px-8 flex justify-between items-center gap-2">
+            <div class="flex-1 overflow-hidden">
+                <h1 class="text-base sm:text-xl md:text-2xl font-extrabold text-blue-800 dark:text-blue-400 truncate">بنك رياضة وتأمين</h1>
+                <p class="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 truncate">المستوى 4 - د/ شيماء جمال</p>
             </div>
-            <div class="bg-blue-900 px-6 py-2 rounded-lg border border-blue-700 shadow-inner text-center">
-                <span class="block text-xs text-blue-300">النتيجة الحالية</span>
-                <span class="text-xl font-bold" id="score-display">0 / 0</span>
+            <div class="flex items-center gap-1 sm:gap-3">
+                <button onclick="toggleDarkMode()" id="theme-toggle" class="p-1.5 sm:p-2 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-600 transition" title="تغيير المظهر">
+                    🌙
+                </button>
+                <div class="bg-blue-50 dark:bg-blue-900/40 text-blue-800 dark:text-blue-300 px-2 sm:px-4 py-1 sm:py-1.5 rounded-lg font-bold text-xs sm:text-sm border border-blue-200 dark:border-blue-800 whitespace-nowrap">
+                    النتيجة: <span id="score-counter" class="text-blue-600 dark:text-blue-400 text-sm sm:text-base">0</span>
+                </div>
+                <button onclick="resetProgress()" class="p-1.5 sm:p-2 px-2 sm:px-3 rounded-lg bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800 hover:bg-red-100 dark:hover:bg-red-900/50 transition font-bold text-xs sm:text-sm flex items-center gap-1">
+                    <span>🔄</span> <span class="hidden sm:inline">تصفير</span>
+                </button>
             </div>
         </div>
-        
-        <!-- Tabs Navigation -->
-        <nav class="flex overflow-x-auto bg-blue-700 text-sm font-semibold">
-            <button onclick="switchTab('tf')" id="tab-tf" class="tab-btn flex-1 py-3 px-4 hover:bg-blue-600 transition focus:outline-none whitespace-nowrap bg-blue-600 border-b-4 border-white">صح وخطأ</button>
-            <button onclick="switchTab('mcq')" id="tab-mcq" class="tab-btn flex-1 py-3 px-4 hover:bg-blue-600 transition focus:outline-none whitespace-nowrap border-b-4 border-transparent">اختيار من متعدد</button>
-            <button onclick="switchTab('essay')" id="tab-essay" class="tab-btn flex-1 py-3 px-4 hover:bg-blue-600 transition focus:outline-none whitespace-nowrap border-b-4 border-transparent">أسئلة مقالية وعملية</button>
-            <button onclick="switchTab('formulas')" id="tab-formulas" class="tab-btn flex-1 py-3 px-4 hover:bg-blue-600 transition focus:outline-none whitespace-nowrap border-b-4 border-transparent text-yellow-300">📚 المرجع الشامل للقوانين</button>
-        </nav>
     </header>
 
+    <!-- Navigation -->
+    <nav class="bg-white/80 dark:bg-slate-800/80 backdrop-blur-md shadow-sm overflow-x-auto sticky top-[52px] sm:top-[60px] z-40 border-b border-slate-200 dark:border-slate-700 transition-colors">
+        <div class="max-w-7xl mx-auto flex whitespace-nowrap px-1">
+            <button onclick="switchTab('mcq')" id="tab-mcq" class="tab-btn active flex-1 px-4 py-3 text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition font-bold text-sm sm:text-base outline-none border-b-3 border-transparent">اختياري (82)</button>
+            <button onclick="switchTab('tf')" id="tab-tf" class="tab-btn flex-1 px-4 py-3 text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition font-bold text-sm sm:text-base outline-none border-b-3 border-transparent">صح وخطأ (19)</button>
+            <button onclick="switchTab('essay')" id="tab-essay" class="tab-btn flex-1 px-4 py-3 text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition font-bold text-sm sm:text-base outline-none border-b-3 border-transparent">مقالي (10)</button>
+            <button onclick="switchTab('laws')" id="tab-laws" class="tab-btn flex-1 px-4 py-3 text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition font-bold text-sm sm:text-base outline-none border-b-3 border-transparent">📚 القوانين</button>
+        </div>
+    </nav>
+
     <!-- Main Content -->
-    <main class="container mx-auto px-4 mt-8 max-w-5xl">
+    <main class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-6">
         
-        <!-- Tab 1: True / False -->
-        <section id="tf" class="tab-content active space-y-6"></section>
+        <section id="content-mcq" class="tab-content block">
+            <div id="mcq-container" class="space-y-4 sm:space-y-6"></div>
+        </section>
 
-        <!-- Tab 2: MCQ -->
-        <section id="mcq" class="tab-content space-y-6"></section>
+        <section id="content-tf" class="tab-content hidden">
+            <div id="tf-container" class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6"></div>
+        </section>
 
-        <!-- Tab 3: Essay & Practical -->
-        <section id="essay" class="tab-content space-y-6"></section>
+        <section id="content-essay" class="tab-content hidden">
+            <div id="essay-container" class="space-y-6"></div>
+        </section>
 
-        <!-- Tab 4: Formulas Reference -->
-        <section id="formulas" class="tab-content space-y-6"></section>
+        <section id="content-laws" class="tab-content hidden">
+            <div class="mb-10 text-center animate-fadeIn">
+                <h2 class="text-2xl sm:text-3xl font-extrabold text-blue-900 dark:text-blue-300 mb-3">ملخص القوانين والمفاهيم الرياضية</h2>
+                <p class="text-slate-600 dark:text-slate-400 font-medium text-sm sm:text-base">مرجع شامل ومنسق لأهم القوانين والقواعد المقررة لتسهيل المراجعة</p>
+                <div class="w-16 h-1.5 bg-blue-500 mx-auto mt-4 rounded-full opacity-80"></div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
+                
+                <!-- 1. المجموعات العددية الأساسية -->
+                <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm hover:shadow-md transition-shadow overflow-hidden border border-slate-200 dark:border-slate-700 flex flex-col">
+                    <div class="bg-slate-50 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-700 px-5 py-4">
+                        <h3 class="text-lg sm:text-xl font-extrabold text-blue-800 dark:text-blue-400 flex items-center gap-2">
+                            <span>🔢</span> المجموعات العددية الأساسية
+                        </h3>
+                    </div>
+                    <div class="p-5 sm:p-6 space-y-5 flex-1">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div class="bg-blue-50/50 dark:bg-slate-700/30 p-3.5 rounded-xl border border-blue-100 dark:border-slate-600 hover:border-blue-300 transition-colors">
+                                <strong class="text-blue-800 dark:text-blue-300 text-sm block mb-2">الأعداد الطبيعية (N)</strong>
+                                <div class="math-text text-slate-700 dark:text-slate-300 text-sm bg-white dark:bg-slate-800 px-2 py-1 rounded border border-slate-100 dark:border-slate-700 inline-block mb-2">$N = \{1, 2, 3, ...\}$</div>
+                                <div class="mt-1 text-[11px] sm:text-xs bg-white/60 dark:bg-slate-800/60 p-2 rounded-lg border border-slate-200/50 dark:border-slate-600/50 text-slate-600 dark:text-slate-300"><span class="font-bold text-blue-600 dark:text-blue-400">مثال:</span> الأعداد $3, 17, 86$ (تستخدم للعد).</div>
+                            </div>
+                            <div class="bg-blue-50/50 dark:bg-slate-700/30 p-3.5 rounded-xl border border-blue-100 dark:border-slate-600 hover:border-blue-300 transition-colors">
+                                <strong class="text-blue-800 dark:text-blue-300 text-sm block mb-2">الأعداد الكلية (W)</strong>
+                                <div class="math-text text-slate-700 dark:text-slate-300 text-sm bg-white dark:bg-slate-800 px-2 py-1 rounded border border-slate-100 dark:border-slate-700 inline-block mb-2">$W = \{0, 1, 2, ...\}$</div>
+                                <div class="mt-1 text-[11px] sm:text-xs bg-white/60 dark:bg-slate-800/60 p-2 rounded-lg border border-slate-200/50 dark:border-slate-600/50 text-slate-600 dark:text-slate-300"><span class="font-bold text-blue-600 dark:text-blue-400">مثال:</span> الصفر $0$ والأعداد $2, 96$.</div>
+                            </div>
+                            <div class="bg-blue-50/50 dark:bg-slate-700/30 p-3.5 rounded-xl border border-blue-100 dark:border-slate-600 hover:border-blue-300 transition-colors">
+                                <strong class="text-blue-800 dark:text-blue-300 text-sm block mb-2">الأعداد الصحيحة (Z)</strong>
+                                <div class="math-text text-slate-700 dark:text-slate-300 text-sm bg-white dark:bg-slate-800 px-2 py-1 rounded border border-slate-100 dark:border-slate-700 inline-block mb-2">$Z = \{..., -1, 0, 1, ...\}$</div>
+                                <div class="mt-1 text-[11px] sm:text-xs bg-white/60 dark:bg-slate-800/60 p-2 rounded-lg border border-slate-200/50 dark:border-slate-600/50 text-slate-600 dark:text-slate-300"><span class="font-bold text-blue-600 dark:text-blue-400">مثال:</span> الأعداد $-5, 17, -23$.</div>
+                            </div>
+                            <div class="bg-blue-50/50 dark:bg-slate-700/30 p-3.5 rounded-xl border border-blue-100 dark:border-slate-600 hover:border-blue-300 transition-colors">
+                                <strong class="text-blue-800 dark:text-blue-300 text-sm block mb-2">الأعداد الحقيقية (R)</strong>
+                                <p class="text-slate-600 dark:text-slate-400 text-xs font-medium leading-relaxed mb-2">تشمل جميع الأعداد النسبية وغير النسبية.</p>
+                                <div class="mt-1 text-[11px] sm:text-xs bg-white/60 dark:bg-slate-800/60 p-2 rounded-lg border border-slate-200/50 dark:border-slate-600/50 text-slate-600 dark:text-slate-300"><span class="font-bold text-blue-600 dark:text-blue-400">مثال:</span> $2.5, -4, \sqrt{3}$.</div>
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-4 pt-2">
+                            <div class="flex items-start gap-3">
+                                <span class="bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 p-1.5 rounded-lg text-xs mt-0.5">🔹</span>
+                                <div class="flex-1">
+                                    <strong class="text-slate-800 dark:text-slate-200 text-sm">الأعداد النسبية (القياسية) (Q):</strong>
+                                    <p class="text-slate-500 dark:text-slate-400 text-xs mt-1.5 leading-relaxed mb-1.5">التي يمكن كتابتها على صورة كسر <span class="math-text">$a/b$</span> حيث <span class="math-text">$b \neq 0$</span>. وتشمل العشري المنتهي والدوري.</p>
+                                    <div class="text-[11px] sm:text-xs bg-slate-50 dark:bg-slate-700/30 p-2 rounded border border-slate-100 dark:border-slate-600 text-slate-600 dark:text-slate-300"><span class="font-bold text-blue-600 dark:text-blue-400">مثال:</span> المنتهي $\frac{1}{5}=0.2$، والدوري $\frac{2}{3}=0.66...$</div>
+                                </div>
+                            </div>
+                            <div class="flex items-start gap-3">
+                                <span class="bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 p-1.5 rounded-lg text-xs mt-0.5">🔹</span>
+                                <div class="flex-1">
+                                    <strong class="text-slate-800 dark:text-slate-200 text-sm">الأعداد غير النسبية (I):</strong>
+                                    <p class="text-slate-500 dark:text-slate-400 text-xs mt-1.5 leading-relaxed mb-1.5">العشري غير المنتهي وغير الدوري (الجذور التي ليست مربعات كاملة).</p>
+                                    <div class="text-[11px] sm:text-xs bg-slate-50 dark:bg-slate-700/30 p-2 rounded border border-slate-100 dark:border-slate-600 text-slate-600 dark:text-slate-300"><span class="font-bold text-blue-600 dark:text-blue-400">مثال:</span> $\sqrt{3} \approx 1.73205...$ و $\pi \approx 3.14159...$</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-4 p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-xl border border-indigo-200 dark:border-indigo-800/60 shadow-sm">
+                            <strong class="text-indigo-900 dark:text-indigo-300 text-sm flex items-center gap-2 mb-2">
+                                <span class="text-lg">✨</span> العدد المركب (Complex Number)
+                            </strong>
+                            <p class="text-indigo-700 dark:text-indigo-400/80 text-xs leading-relaxed font-medium mb-2">عدد مكون من جزئين: أحدهما حقيقي والآخر تخيلي.</p>
+                            <div class="text-[11px] sm:text-xs bg-white/60 dark:bg-indigo-900/40 p-2 rounded border border-indigo-100 dark:border-indigo-800 text-indigo-800 dark:text-indigo-200"><span class="font-bold">مثال:</span> <span class="math-text font-bold">$3 + 5i$</span> (حيث 3 حقيقي، و 5i تخيلي).</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. العمليات على الفئات -->
+                <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm hover:shadow-md transition-shadow overflow-hidden border border-slate-200 dark:border-slate-700 flex flex-col">
+                    <div class="bg-slate-50 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-700 px-5 py-4">
+                        <h3 class="text-lg sm:text-xl font-extrabold text-blue-800 dark:text-blue-400 flex items-center gap-2">
+                            <span>⭕</span> العمليات على الفئات (المجموعات)
+                        </h3>
+                    </div>
+                    <div class="p-5 sm:p-6 space-y-4 flex-1">
+                        <ul class="space-y-4 text-sm">
+                            <li class="p-3 bg-slate-50 dark:bg-slate-700/30 rounded-xl border border-slate-100 dark:border-slate-700">
+                                <div class="flex items-center gap-3 mb-2">
+                                    <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-lg px-3 py-1.5 math-text text-blue-700 dark:text-blue-400 font-bold min-w-[70px] text-center shadow-sm">$A \cup B$</div>
+                                    <div>
+                                        <strong class="text-slate-800 dark:text-slate-200 block mb-0.5">الاتحاد</strong>
+                                        <span class="text-slate-500 dark:text-slate-400 text-xs">تجميع كافة عناصر المجموعتين دون تكرار.</span>
+                                    </div>
+                                </div>
+                                <div class="text-[11px] sm:text-xs bg-white dark:bg-slate-800 p-2 rounded border border-slate-100 dark:border-slate-600 text-slate-600 dark:text-slate-300"><span class="font-bold text-blue-600 dark:text-blue-400">مثال:</span> إذا كان $A=\{1,2\}, B=\{2,3\}$ فإن <span class="math-text">$A \cup B = \{1,2,3\}$</span></div>
+                            </li>
+                            <li class="p-3 bg-slate-50 dark:bg-slate-700/30 rounded-xl border border-slate-100 dark:border-slate-700">
+                                <div class="flex items-center gap-3 mb-2">
+                                    <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-lg px-3 py-1.5 math-text text-blue-700 dark:text-blue-400 font-bold min-w-[70px] text-center shadow-sm">$A \cap B$</div>
+                                    <div>
+                                        <strong class="text-slate-800 dark:text-slate-200 block mb-0.5">التقاطع</strong>
+                                        <span class="text-slate-500 dark:text-slate-400 text-xs">أخذ العناصر المشتركة فقط بين المجموعتين.</span>
+                                    </div>
+                                </div>
+                                <div class="text-[11px] sm:text-xs bg-white dark:bg-slate-800 p-2 rounded border border-slate-100 dark:border-slate-600 text-slate-600 dark:text-slate-300"><span class="font-bold text-blue-600 dark:text-blue-400">مثال:</span> إذا كان $A=\{1,2\}, B=\{2,3\}$ فإن <span class="math-text">$A \cap B = \{2\}$</span></div>
+                            </li>
+                            <li class="p-3 bg-slate-50 dark:bg-slate-700/30 rounded-xl border border-slate-100 dark:border-slate-700">
+                                <div class="flex items-center gap-3 mb-2">
+                                    <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-lg px-3 py-1.5 math-text text-blue-700 dark:text-blue-400 font-bold min-w-[70px] text-center shadow-sm">$A - B$</div>
+                                    <div>
+                                        <strong class="text-slate-800 dark:text-slate-200 block mb-0.5">الفرق</strong>
+                                        <span class="text-slate-500 dark:text-slate-400 text-xs">العناصر الموجودة في A وغير الموجودة في B.</span>
+                                    </div>
+                                </div>
+                                <div class="text-[11px] sm:text-xs bg-white dark:bg-slate-800 p-2 rounded border border-slate-100 dark:border-slate-600 text-slate-600 dark:text-slate-300"><span class="font-bold text-blue-600 dark:text-blue-400">مثال:</span> إذا كان $A=\{4,7,9\}, B=\{5,9\}$ فإن <span class="math-text">$A - B = \{4,7\}$</span></div>
+                            </li>
+                            <li class="p-3 bg-slate-50 dark:bg-slate-700/30 rounded-xl border border-slate-100 dark:border-slate-700">
+                                <div class="flex items-center gap-3 mb-2">
+                                    <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-lg px-3 py-1.5 math-text text-blue-700 dark:text-blue-400 font-bold min-w-[70px] text-center shadow-sm">$\overline{A}$</div>
+                                    <div>
+                                        <strong class="text-slate-800 dark:text-slate-200 block mb-0.5">المكملة</strong>
+                                        <span class="text-slate-500 dark:text-slate-400 text-xs">العناصر الموجودة في الفئة الشاملة U ولا تنتمي لـ A.</span>
+                                    </div>
+                                </div>
+                                <div class="text-[11px] sm:text-xs bg-white dark:bg-slate-800 p-2 rounded border border-slate-100 dark:border-slate-600 text-slate-600 dark:text-slate-300"><span class="font-bold text-blue-600 dark:text-blue-400">مثال:</span> إذا كان $U=\{1,2,3\}, A=\{1\}$ فإن <span class="math-text">$\overline{A} = \{2,3\}$</span></div>
+                            </li>
+                            <li class="p-3 bg-slate-50 dark:bg-slate-700/30 rounded-xl border border-slate-100 dark:border-slate-700">
+                                <div class="flex items-center gap-3 mb-2">
+                                    <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-lg px-3 py-1.5 math-text text-blue-700 dark:text-blue-400 font-bold min-w-[70px] text-center shadow-sm">$A \times B$</div>
+                                    <div>
+                                        <strong class="text-slate-800 dark:text-slate-200 block mb-0.5">الضرب الكارتيزي والفئة الجزئية</strong>
+                                        <span class="text-slate-500 dark:text-slate-400 text-xs">علاقات وتكوين أزواج مرتبة.</span>
+                                    </div>
+                                </div>
+                                <div class="text-[11px] sm:text-xs bg-white dark:bg-slate-800 p-2 rounded border border-slate-100 dark:border-slate-600 text-slate-600 dark:text-slate-300 space-y-1">
+                                    <div><span class="font-bold text-blue-600 dark:text-blue-400">مثال (جزئية $A \subset B$):</span> عناصر A داخل B. $A=\{3,9\} \subset B=\{3,5,9\}$.</div>
+                                    <div><span class="font-bold text-blue-600 dark:text-blue-400">مثال (ضرب كارتيزي):</span> $A=\{1\}, B=\{a,b\} \Rightarrow A \times B = \{(1,a), (1,b)\}$.</div>
+                                </div>
+                            </li>
+                        </ul>
+                        
+                        <div class="mt-5 p-4 sm:p-5 bg-amber-50 dark:bg-amber-900/20 rounded-xl border border-amber-200 dark:border-amber-700/50">
+                            <strong class="text-amber-900 dark:text-amber-400 text-sm flex items-center gap-2 mb-3 border-b border-amber-200 dark:border-amber-800/50 pb-2">
+                                <span>📌</span> خصائص هامة (قوانين ديمورغان)
+                            </strong>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs sm:text-sm mb-3">
+                                <div class="flex items-center gap-2 text-amber-800 dark:text-amber-200/80"><span class="text-amber-500">▪</span> <span class="math-text bg-white/60 dark:bg-black/20 px-2 py-0.5 rounded font-medium">$\overline{A \cup B} = \overline{A} \cap \overline{B}$</span></div>
+                                <div class="flex items-center gap-2 text-amber-800 dark:text-amber-200/80"><span class="text-amber-500">▪</span> <span class="math-text bg-white/60 dark:bg-black/20 px-2 py-0.5 rounded font-medium">$\overline{A \cap B} = \overline{A} \cup \overline{B}$</span></div>
+                                <div class="flex items-center gap-2 text-amber-800 dark:text-amber-200/80"><span class="text-amber-500">▪</span> <span class="math-text bg-white/60 dark:bg-black/20 px-2 py-0.5 rounded font-medium">$A \cap \overline{A} = \emptyset$</span></div>
+                                <div class="flex items-center gap-2 text-amber-800 dark:text-amber-200/80"><span class="text-amber-500">▪</span> <span class="math-text bg-white/60 dark:bg-black/20 px-2 py-0.5 rounded font-medium">$A \cup \overline{A} = \Omega$</span></div>
+                            </div>
+                            <div class="text-amber-800 dark:text-amber-200/80 text-xs border-t border-amber-200 dark:border-amber-800/50 pt-2">
+                                <span class="text-amber-500">▪</span> <span>المجموعتان المنفصلتان: <span class="math-text bg-white/60 dark:bg-black/20 px-2 py-0.5 rounded font-medium">$A \cap B = \emptyset$</span></span>
+                                <div class="mt-1 bg-white/50 dark:bg-black/20 p-1.5 rounded text-[11px]"><span class="font-bold">مثال:</span> $A=\{1\}, B=\{2\} \Rightarrow$ منفصلتان لعدم وجود تقاطع.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. الدوال والعلاقات -->
+                <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm hover:shadow-md transition-shadow overflow-hidden border border-slate-200 dark:border-slate-700 flex flex-col lg:col-span-2">
+                    <div class="bg-slate-50 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-700 px-5 py-4">
+                        <h3 class="text-lg sm:text-xl font-extrabold text-blue-800 dark:text-blue-400 flex items-center gap-2">
+                            <span>📈</span> الدوال والعلاقات الرياضية
+                        </h3>
+                    </div>
+                    <div class="p-5 sm:p-6">
+                        <div class="flex flex-col sm:flex-row gap-4 mb-6">
+                            <div class="flex-1 bg-teal-50 dark:bg-teal-900/20 p-4 rounded-xl border border-teal-100 dark:border-teal-800/50">
+                                <strong class="text-teal-800 dark:text-teal-300 block mb-1">المتغير التابع ($y$)</strong>
+                                <p class="text-teal-700 dark:text-teal-400/80 text-xs leading-relaxed">تتحدد قيمته بناءً على متغيرات أخرى ويعتبر <b>مخرجات</b> الدالة.</p>
+                            </div>
+                            <div class="flex-1 bg-rose-50 dark:bg-rose-900/20 p-4 rounded-xl border border-rose-100 dark:border-rose-800/50">
+                                <strong class="text-rose-800 dark:text-rose-300 block mb-1">المتغير المستقل ($x$)</strong>
+                                <p class="text-rose-700 dark:text-rose-400/80 text-xs leading-relaxed"><b>مدخلات</b> الدالة وتتحدد على أساسها قيم مخرجات الدالة.</p>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="border border-slate-200 dark:border-slate-700 rounded-xl p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                                <div class="flex justify-between items-center mb-2">
+                                    <strong class="text-slate-800 dark:text-slate-200 text-sm">الدالة الثابتة</strong>
+                                    <span class="math-text text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-2 py-0.5 rounded text-sm">$f(x) = c$</span>
+                                </div>
+                                <p class="text-slate-500 dark:text-slate-400 text-xs mb-2">الدرجة الصفرية. تمثل بيانياً بخط مستقيم يوازي محور السينات (x).</p>
+                                <div class="text-[11px] bg-white dark:bg-slate-900 p-2 rounded border border-slate-100 dark:border-slate-700 text-slate-600 dark:text-slate-300"><span class="font-bold text-blue-600">مثال:</span> $f(x) = 5$ (مداها هو $\{5\}$ دائماً).</div>
+                            </div>
+                            <div class="border border-slate-200 dark:border-slate-700 rounded-xl p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                                <div class="flex justify-between items-center mb-2">
+                                    <strong class="text-slate-800 dark:text-slate-200 text-sm">الدالة المحايدة</strong>
+                                    <span class="math-text text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-2 py-0.5 rounded text-sm">$f(x) = x$</span>
+                                </div>
+                                <p class="text-slate-500 dark:text-slate-400 text-xs mb-2">قيمة المخرجات تساوي المدخلات دائماً.</p>
+                                <div class="text-[11px] bg-white dark:bg-slate-900 p-2 rounded border border-slate-100 dark:border-slate-700 text-slate-600 dark:text-slate-300"><span class="font-bold text-blue-600">مثال:</span> إذا كان $x=3$ فإن $f(3) = 3$.</div>
+                            </div>
+                            <div class="border border-slate-200 dark:border-slate-700 rounded-xl p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                                <div class="flex justify-between items-center mb-2">
+                                    <strong class="text-slate-800 dark:text-slate-200 text-sm">الدالة الخطية</strong>
+                                    <span class="math-text text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-2 py-0.5 rounded text-sm">$f(x) = ax + b$</span>
+                                </div>
+                                <p class="text-slate-500 dark:text-slate-400 text-xs mb-2">الدرجة الأولى. تمثل بخط مستقيم مائل. لحل $f(x)=0$ نساويها بالصفر.</p>
+                                <div class="text-[11px] bg-white dark:bg-slate-900 p-2 rounded border border-slate-100 dark:border-slate-700 text-slate-600 dark:text-slate-300"><span class="font-bold text-blue-600">مثال:</span> $f(x) = 2x - 1$. حل $f(x)=0 \Rightarrow 2x-1=0 \Rightarrow x=0.5$.</div>
+                            </div>
+                            <div class="border border-slate-200 dark:border-slate-700 rounded-xl p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                                <div class="flex justify-between items-center mb-2">
+                                    <strong class="text-slate-800 dark:text-slate-200 text-sm">الدالة التكعيبية</strong>
+                                    <span class="math-text text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-2 py-0.5 rounded text-sm">$ax^3 + bx^2 + ...$</span>
+                                </div>
+                                <p class="text-slate-500 dark:text-slate-400 text-xs mb-2">دالة من الدرجة الثالثة. لها نقطة انقلاب.</p>
+                                <div class="text-[11px] bg-white dark:bg-slate-900 p-2 rounded border border-slate-100 dark:border-slate-700 text-slate-600 dark:text-slate-300"><span class="font-bold text-blue-600">مثال:</span> $f(x) = x^3$ (نقطة الانقلاب عند $(0,0)$).</div>
+                            </div>
+                        </div>
+
+                        <div class="mt-4 border border-slate-200 dark:border-slate-700 rounded-xl p-4 bg-slate-50/50 dark:bg-slate-800/30">
+                             <div class="flex justify-between items-start sm:items-center flex-col sm:flex-row mb-2 gap-2">
+                                <strong class="text-slate-800 dark:text-slate-200 text-sm">الدالة التربيعية (الدرجة الثانية)</strong>
+                                <span class="math-text text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-2 py-0.5 rounded text-sm">$f(x) = ax^2 + bx + c$</span>
+                            </div>
+                            <p class="text-slate-600 dark:text-slate-400 text-xs leading-relaxed mb-3">
+                                رأس المنحنى عند <span class="math-text inline-block bg-white dark:bg-slate-700 px-1 rounded border border-slate-200 dark:border-slate-600">$( \frac{-b}{2a} , f(\frac{-b}{2a}) )$</span>. 
+                                <br>تكون نهاية <span class="text-red-500 font-bold">صغرى</span> إذا كان $a$ موجب (منحنى لأعلى)، ونهاية <span class="text-green-500 font-bold">عظمى</span> إذا كان $a$ سالب (منحنى لأسفل).
+                            </p>
+                            <div class="text-[11px] sm:text-xs bg-white dark:bg-slate-900 p-2.5 rounded-lg border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300">
+                                <span class="font-bold text-blue-600">مثال:</span> $f(x) = x^2 - 4$. بما أن معامل $x^2$ موجب ($a=1$)، فرأس المنحنى هو نهاية صغرى عند $(0, -4)$. وجذور المعادلة $f(x)=0$ هي $x=2, x=-2$.
+                            </div>
+                        </div>
+
+                        <div class="mt-5 p-4 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl border border-emerald-200 dark:border-emerald-800/50 flex items-start gap-3">
+                            <span class="text-xl mt-0.5">💼</span>
+                            <div class="w-full">
+                                <strong class="text-emerald-900 dark:text-emerald-300 text-sm block mb-1">التطبيق التجاري (دالة التكلفة)</strong>
+                                <div class="math-text text-emerald-800 dark:text-emerald-200/90 text-sm font-bold bg-white/60 dark:bg-black/20 px-3 py-2 rounded-lg inline-block border border-emerald-100 dark:border-emerald-800 mb-2">
+                                    $y = \text{التكلفة الثابتة} + (\text{التكلفة المتغيرة للوحدة} \times x)$
+                                </div>
+                                <div class="text-[11px] sm:text-xs bg-white/60 dark:bg-emerald-900/40 p-2 rounded-lg border border-emerald-100 dark:border-emerald-800/50 text-emerald-800 dark:text-emerald-200">
+                                    <span class="font-bold">مثال:</span> تكلفة ثابتة 2000 ومتغيرة 25. الدالة $y = 2000 + 25x$. لإنتاج 10 وحدات $\Rightarrow y = 2000 + 25(10) = 2250$.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4. المصفوفات -->
+                <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm hover:shadow-md transition-shadow overflow-hidden border border-slate-200 dark:border-slate-700 flex flex-col">
+                    <div class="bg-slate-50 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-700 px-5 py-4">
+                        <h3 class="text-lg sm:text-xl font-extrabold text-blue-800 dark:text-blue-400 flex items-center gap-2">
+                            <span>🧮</span> المصفوفات والمحددات
+                        </h3>
+                    </div>
+                    <div class="p-5 sm:p-6 flex-1 text-sm text-slate-700 dark:text-slate-300">
+                        
+                        <div class="space-y-3">
+                            <h4 class="font-bold text-blue-800 dark:text-blue-300 mb-2 border-b border-slate-200 dark:border-slate-700 pb-1">أنواع وخصائص المصفوفات:</h4>
+                            
+                            <div class="p-2 bg-slate-50 dark:bg-slate-700/30 rounded border border-slate-100 dark:border-slate-700">
+                                <div class="flex justify-between items-center mb-1">
+                                    <span class="font-bold">درجة (رتبة) المصفوفة</span>
+                                    <span class="math-text bg-slate-200 dark:bg-slate-600 px-2 py-0.5 rounded text-xs">صفوف $\times$ أعمدة ($m \times n$)</span>
+                                </div>
+                                <div class="text-[11px] text-slate-500 dark:text-slate-400"><span class="font-bold text-blue-600">مثال:</span> مصفوفة بها 3 صفوف وعمودين رتبتها $3 \times 2$.</div>
+                            </div>
+
+                            <div class="p-2 bg-slate-50 dark:bg-slate-700/30 rounded border border-slate-100 dark:border-slate-700">
+                                <div class="flex justify-between items-center mb-1">
+                                    <span class="font-bold">المصفوفة المربعة / الصف / العمود</span>
+                                </div>
+                                <div class="text-[11px] text-slate-500 dark:text-slate-400 space-y-1">
+                                    <div><span class="font-bold text-blue-600">المربعة:</span> صفوفها = أعمدتها. (مثال: $2 \times 2$)</div>
+                                    <div><span class="font-bold text-blue-600">مصفوفة الصف:</span> صف واحد $1 \times n$. (مثال: $D=[4~2~-8]$)</div>
+                                    <div><span class="font-bold text-blue-600">مصفوفة العمود:</span> عمود واحد $m \times 1$. (مثال: $K=[-4; 3]$)</div>
+                                </div>
+                            </div>
+
+                            <div class="p-2 bg-slate-50 dark:bg-slate-700/30 rounded border border-slate-100 dark:border-slate-700">
+                                <div class="flex justify-between items-center mb-1">
+                                    <span class="font-bold">الوحدة (I) / الصفرية (O) / القياسية / القطرية</span>
+                                </div>
+                                <div class="text-[11px] text-slate-500 dark:text-slate-400 space-y-1">
+                                    <div><span class="font-bold text-blue-600">الوحدة:</span> قطرها الرئيسي 1 والباقي صفر. (مثال: $I=[1~0; 0~1]$)</div>
+                                    <div><span class="font-bold text-blue-600">القياسية:</span> عناصر القطر الرئيسي متساوية. (مثال: $[5~0; 0~5]$)</div>
+                                </div>
+                            </div>
+
+                            <div class="p-2 bg-slate-50 dark:bg-slate-700/30 rounded border border-slate-100 dark:border-slate-700">
+                                <div class="flex justify-between items-center mb-1">
+                                    <span class="font-bold text-red-600 dark:text-red-400">المصفوفة المفردة</span>
+                                    <span class="math-text font-bold text-xs bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300 px-2 rounded">$|A| = 0$</span>
+                                </div>
+                                <div class="text-[11px] text-slate-500 dark:text-slate-400"><span class="font-bold text-blue-600">مثال:</span> $A=[2~3; 4~6] \Rightarrow (2\times6) - (3\times4) = 0$.</div>
+                            </div>
+
+                            <div class="p-2 bg-slate-50 dark:bg-slate-700/30 rounded border border-slate-100 dark:border-slate-700">
+                                <div class="flex justify-between items-center mb-1">
+                                    <span class="font-bold">مبدول المصفوفة ($A^T$) والمتماثلة</span>
+                                    <span class="math-text font-bold text-xs bg-slate-200 dark:bg-slate-600 px-2 rounded">$A = A^T$</span>
+                                </div>
+                                <div class="text-[11px] text-slate-500 dark:text-slate-400 space-y-1">
+                                    <div><span class="font-bold text-blue-600">المبدول:</span> تبديل الصفوف بالأعمدة. (مثال: $[1~2]^T = [1; 2]$)</div>
+                                    <div><span class="font-bold text-blue-600">المتماثلة:</span> تتساوى مع مبدولها.</div>
+                                </div>
+                            </div>
+
+                            <div class="p-2 bg-slate-50 dark:bg-slate-700/30 rounded border border-slate-100 dark:border-slate-700">
+                                <div class="flex justify-between items-center mb-1">
+                                    <span class="font-bold text-blue-600 dark:text-blue-400">أثر المصفوفة (Trace)</span>
+                                </div>
+                                <div class="text-[11px] text-slate-500 dark:text-slate-400">ناتج جمع عناصر القطر الرئيسي. <span class="font-bold text-blue-600">مثال:</span> $A=[2~0; 0~5] \Rightarrow tr(A) = 2+5=7$.</div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-100 dark:border-blue-800/50">
+                            <strong class="text-blue-800 dark:text-blue-300 block mb-1 text-xs sm:text-sm">📌 شرط ضرب المصفوفات:</strong>
+                            <p class="text-slate-600 dark:text-slate-400 text-xs font-medium mb-1">عدد <span class="text-blue-600 dark:text-blue-400 font-bold">أعمدة</span> المصفوفة الأولى = عدد <span class="text-blue-600 dark:text-blue-400 font-bold">صفوف</span> المصفوفة الثانية.</p>
+                            <div class="text-[11px] bg-white/60 dark:bg-slate-800/60 p-1.5 rounded text-slate-500 dark:text-slate-400"><span class="font-bold">مثال:</span> ضرب مصفوفة ($2 \times 3$) في مصفوفة ($3 \times 4$) يُنتج مصفوفة ($2 \times 4$).</div>
+                        </div>
+                        
+                        <div class="mt-3 p-3 bg-slate-50 dark:bg-slate-700/30 rounded-xl border border-slate-200 dark:border-slate-600">
+                            <strong class="text-slate-800 dark:text-slate-200 block mb-1 text-xs sm:text-sm">📐 حل المعادلات (قاعدة كرامر) ومحدد الثنائية:</strong>
+                            <p class="text-slate-500 dark:text-slate-400 text-xs mb-2">المحدد الثنائي = (القطر الرئيسي) <strong class="text-red-500 mx-1">-</strong> (القطر الآخر).</p>
+                            <div class="text-[11px] bg-white dark:bg-slate-800 p-2 rounded border border-slate-100 dark:border-slate-600 text-slate-600 dark:text-slate-300 space-y-1">
+                                <div><span class="font-bold text-blue-600">قاعدة كرامر:</span> $x = \frac{\Delta_x}{\Delta}$ ، $y = \frac{\Delta_y}{\Delta}$</div>
+                                <div><span class="font-bold text-blue-600">مثال:</span> إذا كانت $\Delta = -2$ و $\Delta_x = -2$ فإن $x = \frac{-2}{-2} = 1$.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 5. المتتابعات (Spans 2 columns on large screens) -->
+                <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm hover:shadow-md transition-shadow overflow-hidden border border-slate-200 dark:border-slate-700 flex flex-col lg:col-span-2">
+                    <div class="bg-slate-50 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-700 px-5 py-4">
+                        <h3 class="text-lg sm:text-xl font-extrabold text-blue-800 dark:text-blue-400 flex items-center gap-2">
+                            <span>♾️</span> المتتابعات والمتسلسلات
+                        </h3>
+                    </div>
+                    <div class="p-5 sm:p-8">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            
+                            <!-- الحسابية -->
+                            <div class="bg-blue-50/60 dark:bg-slate-900/40 p-5 sm:p-6 rounded-2xl border border-blue-100 dark:border-blue-900/50 shadow-sm relative overflow-hidden">
+                                <div class="absolute top-0 right-0 w-2 h-full bg-blue-500 rounded-r-2xl"></div>
+                                <h4 class="text-lg font-extrabold text-blue-800 dark:text-blue-300 mb-4 flex items-center gap-2">
+                                    <span class="bg-blue-200 dark:bg-blue-800 p-1.5 rounded-lg text-sm">➕</span> المتتابعة الحسابية
+                                </h4>
+                                <ul class="space-y-4 text-sm text-slate-700 dark:text-slate-300">
+                                    <li>
+                                        <span class="block text-slate-500 dark:text-slate-400 text-xs mb-1">الأساس (الفرق الثابت):</span>
+                                        <div class="math-text bg-white dark:bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 font-bold mb-1">$d = a_{n+1} - a_n$</div>
+                                        <div class="text-[11px] bg-white/60 dark:bg-slate-800/60 p-1.5 rounded text-slate-500"><span class="font-bold text-blue-600">مثال:</span> المتتابعة $2, 5, 8... \Rightarrow d=3$</div>
+                                    </li>
+                                    <li>
+                                        <span class="block text-slate-500 dark:text-slate-400 text-xs mb-1">الحد النوني:</span>
+                                        <div class="math-text bg-white dark:bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 font-bold mb-1">$a_n = a_1 + (n-1)d$</div>
+                                        <div class="text-[11px] bg-white/60 dark:bg-slate-800/60 p-1.5 rounded text-slate-500"><span class="font-bold text-blue-600">مثال:</span> الحد الثالث $a_3 = 2 + (3-1)3 = 8$</div>
+                                    </li>
+                                    <li>
+                                        <span class="block text-slate-500 dark:text-slate-400 text-xs mb-1">مجموع $n$ من الحدود:</span>
+                                        <div class="math-text bg-white dark:bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 font-bold text-center block w-full mb-2">$S_n = \frac{n}{2}[2a_1 + (n-1)d]$</div>
+                                        <div class="text-center text-xs text-slate-500 dark:text-slate-400 mb-2">أو (بمعلومية الحد الأخير)</div>
+                                        <div class="math-text bg-white dark:bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 font-bold text-center block w-full mb-1">$S_n = \frac{n}{2}[a_1 + a_n]$</div>
+                                        <div class="text-[11px] bg-white/60 dark:bg-slate-800/60 p-1.5 rounded text-slate-500"><span class="font-bold text-blue-600">مثال:</span> مجموع أول 3 حدود $S_3 = \frac{3}{2}(2+8) = 15$</div>
+                                    </li>
+                                </ul>
+                            </div>
+
+                            <!-- الهندسية -->
+                            <div class="bg-purple-50/60 dark:bg-slate-900/40 p-5 sm:p-6 rounded-2xl border border-purple-100 dark:border-purple-900/50 shadow-sm relative overflow-hidden">
+                                <div class="absolute top-0 right-0 w-2 h-full bg-purple-500 rounded-r-2xl"></div>
+                                <h4 class="text-lg font-extrabold text-purple-800 dark:text-purple-300 mb-4 flex items-center gap-2">
+                                    <span class="bg-purple-200 dark:bg-purple-800 p-1.5 rounded-lg text-sm">✖️</span> المتتابعة الهندسية
+                                </h4>
+                                <ul class="space-y-4 text-sm text-slate-700 dark:text-slate-300">
+                                    <li>
+                                        <span class="block text-slate-500 dark:text-slate-400 text-xs mb-1">الأساس (خارج القسمة الثابت):</span>
+                                        <div class="math-text bg-white dark:bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 font-bold mb-1">$r = \frac{a_{n+1}}{a_n}$</div>
+                                        <div class="text-[11px] bg-white/60 dark:bg-slate-800/60 p-1.5 rounded text-slate-500"><span class="font-bold text-purple-600">مثال:</span> المتتابعة $3, 6, 12... \Rightarrow r=2$</div>
+                                    </li>
+                                    <li>
+                                        <span class="block text-slate-500 dark:text-slate-400 text-xs mb-1">الحد النوني:</span>
+                                        <div class="math-text bg-white dark:bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 font-bold mb-1">$a_n = a_1 \times r^{n-1}$</div>
+                                        <div class="text-[11px] bg-white/60 dark:bg-slate-800/60 p-1.5 rounded text-slate-500"><span class="font-bold text-purple-600">مثال:</span> الحد الثالث $a_3 = 3(2^2) = 12$</div>
+                                    </li>
+                                    <li>
+                                        <span class="block text-slate-500 dark:text-slate-400 text-xs mb-1">المجموع لعدد $n$:</span>
+                                        <div class="math-text bg-white dark:bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 font-bold text-center block w-full mb-1">$S_n = a_1(\frac{r^n - 1}{r - 1})$</div>
+                                        <div class="text-[11px] bg-white/60 dark:bg-slate-800/60 p-1.5 rounded text-slate-500"><span class="font-bold text-purple-600">مثال:</span> $S_3 = 3(\frac{2^3-1}{2-1}) = 21$</div>
+                                    </li>
+                                    <li>
+                                        <span class="block text-slate-500 dark:text-slate-400 text-xs mb-1">المجموع اللانهائي <span class="text-rose-500 font-bold ml-1">(بشرط $|r| < 1$)</span>:</span>
+                                        <div class="math-text bg-white dark:bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 font-bold text-center block w-full text-rose-700 dark:text-rose-400 border-rose-200 dark:border-rose-900/50 mb-1">$S_\infty = \frac{a_1}{1 - r}$</div>
+                                        <div class="text-[11px] bg-white/60 dark:bg-slate-800/60 p-1.5 rounded text-slate-500"><span class="font-bold text-purple-600">مثال:</span> $r=0.5, a_1=20 \Rightarrow S_\infty = \frac{20}{0.5} = 40$</div>
+                                    </li>
+                                </ul>
+                            </div>
+
+                            <!-- مجاميع خاصة -->
+                            <div class="md:col-span-2 bg-slate-50 dark:bg-slate-900/50 p-5 rounded-2xl border border-slate-200 dark:border-slate-700">
+                                <h4 class="text-base font-extrabold text-slate-800 dark:text-slate-200 mb-4 border-b border-slate-200 dark:border-slate-600 pb-2">
+                                    مجموع المتسلسلات الخاصة (للأعداد الطبيعية)
+                                </h4>
+                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
+                                    <div class="bg-white dark:bg-slate-800 p-3 rounded-xl border border-slate-100 dark:border-slate-700 shadow-sm">
+                                        <span class="block text-slate-500 dark:text-slate-400 text-xs mb-2">الأعداد الطبيعية</span>
+                                        <span class="math-text font-bold text-blue-700 dark:text-blue-400 block mb-2">$\sum n = \frac{n(n+1)}{2}$</span>
+                                        <div class="text-[10px] sm:text-[11px] bg-slate-50 dark:bg-slate-700 p-1.5 rounded text-slate-500"><span class="font-bold text-blue-600">مثال للعدد 3:</span> $3(4)/2 = 6$</div>
+                                    </div>
+                                    <div class="bg-white dark:bg-slate-800 p-3 rounded-xl border border-slate-100 dark:border-slate-700 shadow-sm">
+                                        <span class="block text-slate-500 dark:text-slate-400 text-xs mb-2">مربعات الأعداد</span>
+                                        <span class="math-text font-bold text-blue-700 dark:text-blue-400 block mb-2">$\sum n^2 = \frac{n(n+1)(2n+1)}{6}$</span>
+                                        <div class="text-[10px] sm:text-[11px] bg-slate-50 dark:bg-slate-700 p-1.5 rounded text-slate-500"><span class="font-bold text-blue-600">مثال للعدد 3:</span> $3(4)(7)/6 = 14$</div>
+                                    </div>
+                                    <div class="bg-white dark:bg-slate-800 p-3 rounded-xl border border-slate-100 dark:border-slate-700 shadow-sm">
+                                        <span class="block text-slate-500 dark:text-slate-400 text-xs mb-2">مكعبات الأعداد</span>
+                                        <span class="math-text font-bold text-blue-700 dark:text-blue-400 block mb-2">$\sum n^3 = \frac{n^2(n+1)^2}{4}$</span>
+                                        <div class="text-[10px] sm:text-[11px] bg-slate-50 dark:bg-slate-700 p-1.5 rounded text-slate-500"><span class="font-bold text-blue-600">مثال للعدد 3:</span> $9(16)/4 = 36$</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
 
     </main>
 
-    <!-- Bottom Reset Button -->
-    <div class="fixed bottom-4 left-4 z-50">
-        <button onclick="resetProgress()" class="bg-red-600 hover:bg-red-700 text-white p-3 rounded-full shadow-lg transition transform hover:scale-105" title="مسح التقدم وإعادة البدء">
-            🔄 إعادة البدء
-        </button>
-    </div>
-
-    <!-- Data & Application Logic -->
+    <!-- Scripts & Data -->
     <script>
-        // --- Data Definitions ---
+        // Dark Mode Logic
+        const htmlEl = document.documentElement;
+        const toggleBtn = document.getElementById('theme-toggle');
+        
+        function initTheme() {
+            const stored = localStorage.getItem('theme');
+            if (stored === 'dark' || (!stored && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                htmlEl.classList.add('dark');
+                toggleBtn.innerText = '☀️';
+            } else {
+                htmlEl.classList.remove('dark');
+                toggleBtn.innerText = '🌙';
+            }
+        }
+        initTheme();
 
-        const tfQuestions = [
-            { id: 1, text: "التخطيط المالي يقوم برفع كفاءة الأداء المالي وتحقيق الأهداف بصورة اقتصادية", ans: false, exp: "خطأ، التنظيم المالي هو الذي يعني رفع كفاءة الأداء المالي، بينما التخطيط يعني الاستعداد للمستقبل.", hint: "تذكر الفرق بين التنظيم والتخطيط في وظائف الإدارة المالية." },
-            { id: 2, text: "التنظيم المالي يعني التهيؤ والاستعداد للمستقبل", ans: false, exp: "خطأ، التخطيط المالي هو الذي يعني التهيؤ والاستعداد للمستقبل.", hint: "عكس السؤال السابق تماماً." },
-            { id: 3, text: "الرقابة المالية لا يحقق التخطيط المالي أهدافه ما لم يكن قد اقترن بنظام رقابي فعال", ans: true, exp: "إجابة صحيحة، الرقابة جزء مكمل للتخطيط لضمان تحقيق الأهداف وتقييم القرارات.", hint: "هل يكتمل التخطيط بدون متابعة ورقابة؟" },
-            { id: 4, text: "من خصائص الوسطاء الماليين ارتفاع نسبه صافي حقوق الملكية لاجمالي مصادر الاموال الخاصه بالوسطاء الماليين، بينما يتمثل الشطر الصغير من تلك المصادر في التزامات ماليه، وذلك على عكس قطاع الاعمال الذي يعتمد بصفه اساسيه على صافي حق الملكية ولا تمثل الالتزامات الماليه الا نسبه قليله من المصادر", ans: false, exp: "خطأ، من خصائصهم (انخفاض) نسبة صافي حقوق الملكية واعتمادهم الأكبر على الالتزامات (الودائع).", hint: "تذكر أن البنوك تعتمد بشكل أساسي على أموال المودعين وليس أموالها الخاصة." },
-            { id: 5, text: "ليست هناك خصائص معينه تميز الوسطاء الماليين عن غيرهم من المنشأت الاخرى التي تعمل في قطاع الاعمال", ans: false, exp: "خطأ، بل يتميزون بخصائص واضحة كارتفاع نسبة الأصول المالية وانخفاض حقوق الملكية.", hint: "طبيعة عمل الوسطاء تختلف جذرياً عن الشركات الصناعية والتجارية." },
-            { id: 6, text: "تصنيف المؤسسات الماليه الى مجموعتين هما مؤسسات مالية تتلقي الودائع ومؤسسات مالية لا تتلقي الودائع", ans: false, exp: "خطأ، التصنيف الأساسي هو: مؤسسات تقوم بدور الوساطة، ومؤسسات لا تقوم بدور الوساطة. (ثم تُقسم مؤسسات الوساطة إلى تقبل ولا تقبل ودائع).", hint: "ركز على التقسيم الرئيسي الأول للمؤسسات." },
-            { id: 7, text: "ينحصر دور المؤسسات المالية في تعبئة وتجميع المدخرات وتمويل القطاعات الاقتصادية المختلفه فقط", ans: false, exp: "خطأ، لا ينحصر دورها في ذلك فقط، بل يشمل الاستثمار المباشر، تنفيذ برامج التمويل، وتنشيط الصناعات.", hint: "كلمة 'فقط' غالباً ما تجعل العبارة خاطئة في الوظائف المتعددة." },
-            { id: 8, text: "تتركز اساليب التمويل في البنوك الاسلامية في منح القروض بانواعها المختلفه للعملاء", ans: false, exp: "خطأ، البنوك الإسلامية لا تمنح قروضاً بفائدة، بل تعتمد على صيغ التمويل الإسلامي كالمضاربة والمرابحة.", hint: "كيف تعمل البنوك الإسلامية مقارنة بالتجارية؟" },
-            { id: 9, text: "يتركز دور البنوك التجارية في تلقي الودائع ومنح القروض والاستثمار في الاوراق الماليه فقط", ans: false, exp: "خطأ، هناك أنشطة فرعية كبيع وشراء النقد، إصدار بطاقات الائتمان، وتأجير الخزائن.", hint: "هل تقدم البنوك التجارية خدمات أخرى كبطاقات الائتمان؟" },
-            { id: 10, text: "تقدم البنوك المتخصصه الائتمان قصير الاجل لكافه القطاعات الاقتصاديه دون تفرقه مثلها مثل البنوك التجارية", ans: false, exp: "خطأ، البنوك المتخصصة (كالزراعية والصناعية) تقدم غالباً تمويلاً طويل ومتوسط الأجل لقطاع محدد.", hint: "اسمها 'متخصصة' لأنها تركز على قطاعات محددة وبآجال معينة." },
-            { id: 11, text: "السيوله في البنوك التجارية اخطر من السيولة في المشروعات التجارية", ans: true, exp: "إجابة صحيحة، لأن البنك يعتمد على أموال المودعين الذين قد يسحبونها في أي وقت.", hint: "ماذا يحدث لو ذهب جميع المودعين لسحب أموالهم فجأة؟" },
-            { id: 12, text: "ليس هناك فرق بين اساليب التمويل في البنوك الاسلامية واساليب التمويل في البنوك التجارية", ans: false, exp: "خطأ، يوجد فرق جوهري، التجارية تعتمد على الفائدة، والإسلامية على المشاركة والمرابحة.", hint: "البنوك الإسلامية ترفض الفائدة وتعتمد آليات أخرى." },
-            { id: 13, text: "نسبه الاحتياطى القانوني عباره عن الاموال التي تحتفظ بها البنوك التجارية لديها.", ans: false, exp: "خطأ، نسبة الاحتياطي القانوني تحتفظ بها البنوك لدى (البنك المركزي) وليس لديها.", hint: "أين تضع البنوك الاحتياطي القانوني؟" },
-            { id: 14, text: "ان ارصده البنوك لدى البنك المركزى في اطار النسب القانونية تستحق فائده بالاسعار السائدة", ans: false, exp: "خطأ، الأرصدة كاحتياطي قانوني لدى المركزي لا تدر فائدة للبنك التجاري.", hint: "الاحتياطي القانوني غرضه الأمان وليس الاستثمار المربح." },
-            { id: 15, text: "تعتبر كل الاوراق التجارية المخصومه اصولا سائله من وجهه نظر البنك", ans: false, exp: "خطأ، فقط الأوراق التجارية المخصومة لأقل من 3 شهور تعتبر أصولاً سائلة (التزامات مؤكدة سريعة).", hint: "تذكر مدة الاستحقاق لتصنيف الأصل كسائل." },
-            { id: 16, text: "تعرف الاصول السائله بانها الاصول الصعب تحويلها الى نقديه بسرعه وبدون تحمل خسائر", ans: false, exp: "خطأ، الأصول السائلة هي التي (يسهل) تحويلها إلى نقدية بسرعة وبدون خسائر.", hint: "عكس التعريف الصحيح تماماً." },
-            { id: 17, text: "تتركز المتطلبات التشريعية الخاصة بضبط السيوله في نسبه الاحتياطي القانوني والمفروض من البنك المركزي", ans: false, exp: "خطأ، هناك نسبة السيولة القانونية (30%) بجانب الاحتياطي القانوني.", hint: "هل الاحتياطي القانوني هو النسبة الوحيدة المطلوبة؟" },
-            { id: 18, text: "هناك ثلاث وسائل يمكن للبنك التجارى اللجوء اليها لمقابله احتياجات السيولة", ans: false, exp: "خطأ، هناك وسيلتين أساسيتين: إدارة الأصول (تسييلها) وإدارة الالتزامات (اقتراض جديد).", hint: "راجع المحاضرة، تم ذكر وسيلتين رئيسيتين فقط." },
-            { id: 19, text: "ليس هناك فرق بين المفاهيم المختلفه للسيوله فكلها تعكس قابلية تحول الاصول الى نقدية", ans: false, exp: "خطأ، هناك فرق؛ المفهوم المطلق، المفهوم الفني، والمفهوم النسبي.", hint: "يوجد أكثر من منظور وتعريف للسيولة في البنوك." },
-            { id: 20, text: "تتركز مصادر الدخل الرئيسية في البنك في العائد من القروض", ans: false, exp: "خطأ، هناك عوائد أخرى كالاستثمارات المالية وإيرادات الخدمات المصرفية، ورغم أهمية القروض فهي ليست المصدر الوحيد للدخل الرئيسي دائماً حسب تنوع البنك.", hint: "ماذا عن الأوراق المالية والعمولات؟" },
-            { id: 21, text: "لا يمكن احتساب نسبه الاحتياطى القانوني دون بيانات الارباح والخسائر الخاصه بالبنك", ans: false, exp: "خطأ، نسبة الاحتياطي تحسب من بيانات (الميزانية العمومية) كالأرصدة لدى المركزي والودائع، ولا تحتاج حساب الأرباح.", hint: "الاحتياطي يعتمد على الودائع، أين توجد الودائع؟" },
-            { id: 22, text: "ليس هناك فرق بين الاصول السائله والاصول الايراديه فكلاهما اصول تمثل استخدامات للاموال في البنوك التجارية", ans: false, exp: "خطأ، الأصول السائلة غرضها مواجهة السحب (مثل النقدية ولا تدر عائداً كبيراً)، الأصول الإيرادية غرضها الربح (كالقروض).", hint: "النقدية أصل سائل لكنها غير إيرادية." },
-            { id: 23, text: "لا يمكن حساب الربحيه الكليه للبنك دون بيانات الارصده لدى البنك المركزي", ans: false, exp: "خطأ، الربحية (كالعائد على حقوق الملكية) تعتمد على صافي الربح والملكية، ولا تتطلب رقم الأرصدة لدى المركزي بشكل مباشر في قوانينها.", hint: "راجع قوانين الربحية الأربعة." },
-            { id: 24, text: "تتعرض المؤسسات الماليه المصرفيه لنوعين فقط من المخاطر", ans: false, exp: "خطأ، تتعرض لعدة مخاطر: مخاطر ائتمان، سيولة، سوق، معدل فائدة وغيرها.", hint: "بيئة البنوك مليئة بأنواع كثيرة جداً من المخاطر." },
-            { id: 25, text: "تعتبر صناديق الاستثمار من الوسطاء الماليين", ans: true, exp: "إجابة صحيحة، صناديق الاستثمار تعتبر من المؤسسات التي تقوم بدور الوساطة ولا تتلقى ودائع.", hint: "هي وسيط بين المستثمر وسوق الأوراق المالية." },
-            { id: 26, text: "تنحصر عناصر عقد التامين في المؤمن والمؤمن له (صاحب الوثيقه) فقط", ans: false, exp: "خطأ، قد يوجد طرف ثالث وهو (المستفيد) إذا لم يكن هو نفسه المؤمن له.", hint: "ماذا لو أمن شخص على حياته لصالح أبنائه؟" },
-            { id: 27, text: "يقصد بمبدأ التعويض قيام المؤمن بتعويض المؤمن له من كل الخسائر التي لحقت به مهما بلغت قيمتها", ans: false, exp: "خطأ، التعويض يكون في حدود (مبلغ التأمين) وقيمة الشيء المؤمن عليه، وليس مطلقاً.", hint: "هل تعوض الشركة بأكثر من قيمة الشيء الفعلي؟" },
-            { id: 28, text: "يقضى شرط النسبيه في التامين بتحمل المؤمن كل الخسائر طالما كانت في حدود مبلغ التامين", ans: false, exp: "خطأ، شرط النسبية يعني أن المؤمن له يتحمل جزءاً من الخسارة إذا كان مبلغ التأمين أقل من قيمة الشيء الفعلية وقت الخسارة.", hint: "النسبية تعني تقسيم الخسارة إذا كان التأمين دون الكفاية." },
-            { id: 29, text: "هناك شروط معينه يجب توافرها في وثيقه التامين حتى يمكن تطبيق مبدأ المشاركة", ans: true, exp: "إجابة صحيحة، مبدأ المشاركة (تعدد المؤمنين) له شروط محددة لتوزيع الخسارة بينهم.", hint: "لا يتم تطبيق المشاركة إلا وفق قواعد محددة بالوثائق." },
-            { id: 30, text: "يتركز الشطر الاعظم من مصادر الاموال في شركات التامين في مصادر التمويل قصيرة الأجل مثلها مثل البنوك التجاريه", ans: false, exp: "خطأ، أموال التأمين (كالتأمين على الحياة) تكون طويلة الأجل غالباً عكس ودائع البنوك التجارية القصيرة الأجل.", hint: "وثائق التأمين عادة تستمر لسنوات طويلة." },
-            { id: 31, text: "تقوم شركات التامين العامه بكل انواع التامين مثل الممتلكات وتامينات المسئوليه المدنيه والتامين على الحياه", ans: false, exp: "خطأ، شركات التأمين العامة تختص بالممتلكات والمسؤولية، وهناك شركات منفصلة للتأمين على الحياة.", hint: "التأمين على الحياة له قطاع أو شركات مخصصة." },
-            { id: 32, text: "تعنى عمليه التامين التزام المؤمن بدفع التعويض للمؤمن له او المستفيد في اى وقت يراه المؤمن له مناسبا له", ans: false, exp: "خطأ، التعويض يُدفع عند (وقوع الخطر المؤمن منه) وليس في أي وقت يختاره المؤمن له.", hint: "التأمين مرتبط بوقوع الخطر." },
-            { id: 33, text: "تمويل الأصول يشمل فقط الأصول الثابتة", ans: false, exp: "خطأ، تمويل الأصول يشمل الأصول الثابتة (كالمعدات) والمتداولة (كالمخزون).", hint: "المخزون والسيولة أصول تحتاج لتمويل أيضاً." },
-            { id: 34, text: "الأرباح المحتجزة مصدر خارجي", ans: false, exp: "خطأ، الأرباح المحتجزة هي مصدر تمويل (داخلي) من داخل أرباح المنشأة.", hint: "تأتي من أرباح الشركة السابقة وليست من ديون." },
-            { id: 35, text: "الإيجار التمويلي يوفر السيولة", ans: true, exp: "إجابة صحيحة، لأنه يغنيك عن دفع ثمن الأصل كاملاً دفعة واحدة مما يوفر سيولة المنشأة.", hint: "بدلاً من الدفع الفوري، تدفع أقساطاً." },
-            { id: 36, text: "تمويل المتداولة بمصادر طويلة الأجل مناسب", ans: false, exp: "خطأ، الأصول المتداولة (قصيرة الأجل) الأنسب لها تمويل (قصير الأجل) لتحقيق التوازن.", hint: "القصير يُمول بالقصير، والطويل يُمول بالطويل." },
-            { id: 37, text: "تكلفة الاقتراض دائما أعلى من العائد", ans: false, exp: "خطأ، بل يجب أن يكون العائد المتوقع من الاستثمار أعلى من تكلفة الاقتراض، وإلا خسر المشروع.", hint: "لو التكلفة أعلى، لن تقترض الشركة أساساً." },
-            { id: 38, text: "التمويل الذاتي يزيد المخاطر", ans: false, exp: "خطأ، التمويل الذاتي (الاعتماد على أموال المنشأة) يخفض المخاطر المالية لأنه يقلل الاعتماد على الديون.", hint: "الديون هي التي تزيد المخاطر." },
-            { id: 39, text: "معايير الاختيار تشمل التكلفة", ans: true, exp: "إجابة صحيحة، تكلفة التمويل هي المعيار الأهم عند اختيار مصدر الأموال.", hint: "تبحث دائماً عن التمويل الأقل تكلفة." },
-            { id: 40, text: "الأصول الثابتة تمول قصير الأجل", ans: false, exp: "خطأ، الأصول الثابتة (طويلة الأجل) تُموّل بمصادر تمويل طويلة الأجل.", hint: "هل تشتري مصنعاً بقرض تسدده بعد شهرين؟" },
-            { id: 41, text: "التمويل يؤثر على الربحية", ans: true, exp: "إجابة صحيحة، تكلفة التمويل وهيكله ينعكسان مباشرة على أرباح الشركة وسيولتها.", hint: "الفوائد المدفوعة تقلل الأرباح." },
-            { id: 42, text: "الإيجار يؤدي للامتلاك الفوري", ans: false, exp: "خطأ، الإيجار التمويلي يؤدي إلى حق الاستخدام مقابل دفعات، والامتلاك يكون غالباً في نهاية العقد.", hint: "الملكية لا تنتقل في أول يوم." }
+        function toggleDarkMode() {
+            if (htmlEl.classList.contains('dark')) {
+                htmlEl.classList.remove('dark');
+                localStorage.setItem('theme', 'light');
+                toggleBtn.innerText = '🌙';
+            } else {
+                htmlEl.classList.add('dark');
+                localStorage.setItem('theme', 'dark');
+                toggleBtn.innerText = '☀️';
+            }
+        }
+
+        // Data 
+        const mcqData = [
+            { q: "اذا كان $A=\\{a,b\\}, B=\\{b,c,d\\}$ فان $A\\cup B$ يساوي", o: ["{a, b, c, d}", "{b, c, d}", "{d}", "{b}"], a: 0, h: "الاتحاد يجمع كل العناصر بدون تكرار." },
+            { q: "المتغير .... هو المتغير الذي تتحدد قيمته بناءا على متغيرات اخري ويعتبر هو مخرجات الدالة", o: ["المتغير المستقل", "المتغير الوهمي", "المتغير التابع", "المتغير الوسيط"], a: 2, h: "التابع يتأثر ويعد مخرجات." },
+            { q: "المتغير .... هو مدخلات الدالة وتتحدد على أساسها قيم مخرجات الدالة", o: ["المتغير التابع", "المتغير المستقل", "المتغير الوهمي", "المتغير الوسيط"], a: 1, h: "المستقل هو المدخل الذي نتحكم به." },
+            { q: ".... هي دالة من الدرجة الصفرية", o: ["الدالة التربيعية", "الدالة الخطية", "الدالة الثابتة", "الدالة التكعيبة"], a: 2, h: "الثابتة لا تحتوي على المتغير المستقل." },
+            { q: "المطلوب إيجاد $B - A$ إذا كان $A=\\{4,7,9,11\\}, B=\\{5,2,9,10,11\\}$", o: ["{9,11}", "{5,2,10}", "{5,2,10,11}", "{2,4,5,7,9,10,11}"], a: 1, h: "العناصر الموجودة في B وليست في A." },
+            { q: "المطلوب إيجاد $A - B$ إذا كان $A=\\{4,7,9,11\\}, B=\\{5,2,9,10,11\\}$", o: ["{9,11}", "{5,2,10}", "{4,7}", "{2,4,5,7,9,10,11}"], a: 2, h: "العناصر الموجودة في A وليست في B." },
+            { q: "يساوي (مكمل A) $\\overline{A}$ اذا كان $\\Omega=\\{a,b,c,d,e,f\\}, A=\\{a,b,f\\}$", o: ["{c, d, e}", "{a, d}", "{a, b, f}", "{e, f}"], a: 0, h: "العناصر في الشاملة وليست في A." },
+            { q: "المطلوب إيجاد $A\\cap B$ إذا كان $A=\\{4,7,9,11\\}, B=\\{5,2,9,10,11\\}$", o: ["{9,11}", "{5,2,10,11}", "{5,2,10}", "{2,4,5,7,9,10,11}"], a: 0, h: "التقاطع يعني العناصر المشتركة." },
+            { q: "المتغير التابع هو المتغير الذي تتحدد قيمته بناءا على متغيرات اخري ويعتبر", o: ["مخرجات الدالة", "مدخلات الدالة", "أ وب معا", "غير ذلك"], a: 0, h: "التابع دائماً هو المخرجات." },
+            { q: "يقصد بعملية .... أخذ العناصر المشتركة بين مجموعتين أو أكثر", o: ["الاتحاد", "التقاطع", "الفرق", "غير ذلك"], a: 1, h: "التقاطع يختص بالمشترك فقط." },
+            { q: "إذا كانت التكلفة الثابتة 7000 جنيه والتكلفة المتغيرة 27 جنيه للوحدة. عبر عن دالة التكلفة كدالة خطية", o: ["$y=7000$", "$y=7000+27x$", "$y=7000+27$", "$y=27x$"], a: 1, h: "دالة التكلفة = الثابتة + (المتغيرة * س)." },
+            { q: ".... هي دالة من الدرجة الثالثة", o: ["الدالة الخطية", "الدالة التكعيبة", "الدالة التربيعية", "الدالة الثابتة"], a: 1, h: "الدرجة الثالثة تعني تكعيبية." },
+            { q: "يعتبر العدد 0.12542835141 عددا", o: ["نسبي", "طبيعي", "غير نسبي", "كلي"], a: 2, h: "عشري غير منتهي وغير دوري." },
+            { q: "يعتبر العدد 0.725725725725 عددا", o: ["نسبي", "طبيعي", "غير نسبي", "كلي"], a: 0, h: "لأنه عشري دوري متكرر." },
+            { q: "يعتبر العدد 27 عددا", o: ["نسبي", "طبيعي", "غير نسبي", "كلي"], a: 1, h: "عدد صحيح موجب يستخدم للعد." },
+            { q: "يعتبر العدد 9 عددا", o: ["صحيح", "طبيعي", "غير نسبي", "كلي"], a: 1, h: "عدد طبيعي." },
+            { q: ".... هي الدالة التي يكون فيها قيمة (X) مساوية لقيمة f(x) دائما", o: ["الدالة التربيعية", "الدالة المحايدة", "الدالة الثابتة", "الدالة التكعيبة"], a: 1, h: "المحايدة تعيد نفس القيمة المدخلة." },
+            { q: "إذا كانت التكلفة الثابتة 2000 والمتغيرة 25. عبر عن دالة التكلفة كدالة خطية", o: ["$y=2000$", "$y=2000+25x$", "$y=2000+25$", "$y=25x$"], a: 1, h: "صيغة التكلفة الكلية." },
+            { q: "اوجد المدي إذا كان $y=5$", o: ["]5,\\infty[", "]-8,8[", "{5}", "[5,\\infty["], a: 2, h: "دالة ثابتة فمدى خروجها هو 5 دائماً." },
+            { q: ".... ترسم بخط افقي موازي محور السينات", o: ["الدالة التربيعية", "الدالة الخطية", "الدالة الثابتة", "الدالة التكعيبة"], a: 2, h: "قيمة الدالة الثابتة لا تتغير." },
+            { q: "مندوب مبيعات مرتبه الاساسي 500 وعمولة 8% تزيد عن 6000. عبر عن دخله الشهري كدالة", o: ["$y=500$", "$y=500+0.08x$", "$y=6000$", "$y=500+6000$"], a: 1, h: "الأساس 500 + نسبة 0.08 مضروبة في المتغير." },
+            { q: "حدد مجال هذه الدالة", o: ["[500,\\infty[", "]-8,8[", "[0,\\infty[", "[6000,\\infty["], a: 3, h: "العمولة تطبق لما بعد الـ 6000." },
+            { q: "احسب دخله الإجمالي اذا حقق مبيعات قيمتها 5000", o: ["500", "5000", "900", "5500"], a: 0, h: "لم يصل لحد العمولة (6000) فيأخذ الأساسي فقط." },
+            { q: "احسب دخله الإجمالي اذا حقق مبيعات قيمتها 8000", o: ["500", "8500", "900", "1140"], a: 3, h: "بالتعويض: $y = 500 + 0.08(8000) = 1140$ بناء على حل البنك." },
+            { q: "المطلوب إيجاد $B - A$ إذا كان $A=\\{4,7,9,11\\}, B=\\{5,2,9,10,11\\}$", o: ["{9,11}", "{5,2,10,11}", "{5,2,10}", "{2,4,5,7,9,10,11}"], a: 2, h: "هذا السؤال مكرر بالبنك." },
+            { q: "يساوي (مكمل A) $\\overline{A}$ اذا كان $\\Omega=\\{a,b,c,d,e,f\\}, A=\\{a,b,f\\}$", o: ["{c, d, e}", "{a, b, f}", "{c, d, f, e}", "{e, f}"], a: 0, h: "العناصر في الشاملة وليست في A." },
+            { q: "المطلوب إيجاد $A\\cap B$ إذا كان $A=\\{4\\}, B=\\{1,2,4\\}$", o: ["{1,2,3,4,6}", "{1,2,3,5}", "{5}", "{4}"], a: 3, h: "العنصر المشترك هو 4." },
+            { q: "فيكون A و B مجموعتان منفصلتان اذا كان $B=\\{0,2,9,10,11\\}$ و A:", o: ["{4,7,11}", "{4,9,11}", "{4,7,9,11}", "{4,7,8,12}"], a: 3, h: "المجموعة الخالية من التقاطع مع B هي {4,7,8,12}." },
+            { q: "اوجد $A\\cap B$ إذا كان $U=\\{1,2,3,4,5,6\\}, A=\\{5,6\\}, B=\\{1,2,5\\}$", o: ["{1,2,3,4,6}", "{5}", "{1,2,5,6}", "{3,4}"], a: 1, h: "الرقم 5 فقط هو المشترك." },
+            { q: "اوجد $A\\cup B$ لنفس المجموعات السابقة", o: ["{1,2,3,4,6}", "{5}", "{1,2,5,6}", "{3,4}"], a: 2, h: "دمج كل عناصر A و B بدون تكرار." },
+            { q: "اوجد $\\overline{A}$ مكمل (A) لنفس المجموعات", o: ["{1,2,3,4,6}", "{1,2,5,6}", "{5}", "{1,2,3,4}"], a: 3, h: "العناصر في الشاملة وليست في A." },
+            { q: "اوجد $A\\cup B$ مكمل", o: ["{1,2,3,4,6}", "{1,2,5,6}", "{5}", "{3,4}"], a: 3, h: "الاتحاد هو {1,2,5,6} ومكملته هي {3,4}." },
+            { q: "اوجد $B - A$ لنفس المجموعات", o: ["{1,2,3,4,6}", "{1,2,5,6}", "{1,2}", "{6}"], a: 2, h: "في B وليس في A." },
+            { q: "اوجد $A\\cap B$ مكمل", o: ["{1,2,3,4,6}", "{1,2,5,6}", "{5}", "{3,4}"], a: 0, h: "التقاطع هو {5} ومكملته هي {1,2,3,4,6}." },
+            { q: "اوجد $\\overline{B}$ مكمل (B) لنفس المجموعات", o: ["{1,2,3,4,6}", "{1,2,5,6}", "{5}", "{3,4,6}"], a: 3, h: "العناصر في الشاملة وليست في B." },
+            { q: "اوجد $A\\cup B$ مكمل (مكرر بالبنك)", o: ["{1,2,3,4,6}", "{1,2,5,6}", "{5}", "{3,4}"], a: 3, h: "الاتحاد هو {1,2,5,6} ومكملته هي {3,4}." },
+            { q: "اوجد $A - B$ لنفس المجموعات", o: ["{1,2,3,4,6}", "{1,2}", "{1,2,5,6}", "{6}"], a: 3, h: "في A وليس في B." },
+            { q: "ما هي رتبة المصفوفة A (المعطاة 3 صفوف و 3 أعمدة)", o: ["(3X2)", "(1X3)", "(3X1)", "(3X3)"], a: 3, h: "رتبة المصفوفة تقاس بـ (صفوف × أعمدة)." },
+            { q: "ما هي رتبة المصفوفة B (المعطاة 3 صفوف و 2 أعمدة)", o: ["(3X2)", "(1X3)", "(2X2)", "(3X3)"], a: 0, h: "3 صفوف وعمودان." },
+            { q: "ما هي رتبة المصفوفة D (المعطاة صف واحد و 3 أعمدة)", o: ["(1X3)", "(2X3)", "(3X1)", "(3X3)"], a: 0, h: "صف واحد و 3 أعمدة." },
+            { q: "ما هي رتبة المصفوفة E (المعطاة 2 صفوف و 2 أعمدة)", o: ["(3X2)", "(1X3)", "(2X2)", "(3X3)"], a: 2, h: "مصفوفة مربعة 2×2." },
+            { q: "ما هي قيمة العنصر $a_{23}$ في المصفوفة A", o: ["2", "-4", "6", "0"], a: 1, h: "الصف الثاني، العمود الثالث." },
+            { q: "ما هي قيمة العنصر $a_{12}$ في المصفوفة A", o: ["2", "-4", "6", "0"], a: 0, h: "الصف الأول، العمود الثاني." },
+            { q: "ما هي قيمة العنصر $b_{21}$ في المصفوفة B", o: ["2", "4", "6", "0"], a: 2, h: "الصف الثاني، العمود الأول." },
+            { q: "ما هي قيمة العنصر $b_{32}$ في المصفوفة B", o: ["2", "-4", "4", "0"], a: 2, h: "الصف الثالث، العمود الثاني." },
+            { q: "ما هي قيمة العنصر $d_{13}$ في المصفوفة D", o: ["2", "-4", "4", "-8"], a: 3, h: "الصف الأول، العمود الثالث." },
+            { q: "إذا كانت المصفوفة $B=C$ اوجد قيمة X (حيث العنصر 4 = 2X+2)", o: ["6", "-1", "12", "1"], a: 3, h: "بمساواة العناصر المتناظرة 4 = 2x+2 إذن 2x=2 إذن x=1." },
+            { q: "إذا كانت المصفوفة $B=C$ اوجد قيمة y (حيث العنصر 9 = y-3)", o: ["6", "-1", "12", "1"], a: 2, h: "9 = y-3 ومنها y=12." },
+            { q: "إذا كانت المصفوفة $B=C$ اوجد قيمة Z (حيث العنصر -1 = z)", o: ["6", "-1", "12", "1"], a: 1, h: "مباشرة من مساواة العناصر." },
+            { q: "اوجد أثر المصفوفة A = [0 2 6 ; 2 5 -4 ; 0 0 -1]", o: ["-20", "4", "-5", "-4"], a: 1, h: "مجموع القطر الرئيسي: 0 + 5 + (-1) = 4." },
+            { q: "اوجد قيمة المحدد للمصفوفة F = [-8 1 ; 0 3]", o: ["24", "12", "-24", "5"], a: 2, h: "حاصل ضرب القطر الرئيسي - الفرعي: (-8*3) - (1*0) = -24." },
+            { q: "اوجد قيمة المحدد للمصفوفة E = [4 3 ; 1 -2]", o: ["-11", "-1", "-5", "4"], a: 0, h: "(4*-2) - (3*1) = -8 - 3 = -11." },
+            { q: "اوجد المصفوفة 2E", o: ["[8 6 ; 2 -4]", "[4 3 ; 1 -2]", "[12 2 ; 1 -5]", "غير ذلك"], a: 0, h: "ضرب كل عنصر في 2." },
+            { q: "إذا كان $E=[4~3;1~-2]$ و $F=[-8~1;0~3]$ اوجد E + F", o: ["[-4 4 ; 1 1]", "[12 2 ; 1 -5]", "غير ذلك", "[-8 1 ; 0 3]"], a: 0, h: "نجمع العناصر المتناظرة." },
+            { q: "اوجد المصفوفة E - F", o: ["[-4 4 ; 1 1]", "[12 2 ; 1 -5]", "غير ذلك", "[-8 1 ; 0 3]"], a: 1, h: "نطرح العناصر المتناظرة." },
+            { q: "أوجد أثر المصفوفة A (مكرر)", o: ["-20", "4", "-5", "-4"], a: 1, h: "مجموع القطر الرئيسي: 0 + 5 + (-1) = 4." },
+            { q: "أوجد أثر المصفوفة E = [4 3 ; 1 -2]", o: ["2", "-8", "24", "4"], a: 0, h: "مجموع القطر الرئيسي: 4 + (-2) = 2." },
+            { q: "ما هي مصفوفة الصف من المصفوفات المعطاة", o: ["A", "K", "D", "B"], a: 2, h: "المصفوفة D مكونة من صف واحد فقط." },
+            { q: "ما هي مصفوفة العمود", o: ["A", "K", "D", "B"], a: 1, h: "المصفوفة K عمود واحد." },
+            { q: "ما هي المصفوفة المربعة من المصفوفات المعطاة", o: ["A", "D", "K", "C"], a: 0, h: "المصفوفة A عدد صفوفها يساوي عدد أعمدتها 3×3." },
+            { q: "ما هو حاصل ضرب المصفوفة E مع F", o: ["[-32 13 ; -8 -5]", "[12 3 ; 1 -2]", "[32 3 ; 1 -2]", "[-32 13 ; 8 -5]"], a: 0, h: "نضرب صفوف E في أعمدة F." },
+            { q: "باستخدام المحددات للمعادلتين: $x - 2y = 8, -5x + 4y = -3$ أوجد قيمة x", o: ["26", "31", "-13", "15.5"], a: 2, h: "دلتا = -6، دلتا x = 17 (تأكد من المعطيات بالبنك)." },
+            { q: "باستخدام المحددات للمعادلتين: $x - 2y = 8, -5x + 4y = -3$ أوجد قيمة y", o: ["26", "13", "15.5", "31"], a: 2, h: "تطبيق قاعدة كرامر لحساب y." },
+            { q: "باستخدام المحددات للمعادلتين: $x - 2y = 2, 5x + 4y = -6$ أوجد قيمة x", o: ["-4", "2", "-2", "1"], a: 2, h: "بتطبيق كرامر نجد أن x=-2" },
+            { q: "باستخدام المحددات للمعادلتين: $x - 2y = 8, 5x + 4y = -3$ أوجد قيمة y", o: ["-4", "2", "-2", "1"], a: 0, h: "بتطبيق كرامر نجد أن y=-4." },
+            { q: "الحد العام للمتتابعة الحسابية التي حدها الأول -3 واساسها 5 هو:", o: ["5n+3", "5n-13", "-3+5n", "5n-8"], a: 3, h: "الحد العام: a + (n-1)d." },
+            { q: "الحد الخامس عشر من المتتابعة الحسابية التي حدها الأول 20 واساسها -4 هو:", o: ["16", "36", "-16", "-36"], a: 3, h: "a15 = 20 + 14(-4) = -36." },
+            { q: "اذا علمت ان الحد الحادي عشر من متتابعة حسابية يساوي 35 والحد الأول يساوي 5 اوجد أساس هذه المتتابعة؟", o: ["30", "5", "10", "3"], a: 3, h: "5 + 10d = 35 ومنها 10d = 30 إذن d = 3." },
+            { q: "إذا علمت أن الحد السادس عشر من متتالية حسابية يساوي 85 وأساس هذه المتتالية يساوي 5 أوجد الحد الأول", o: ["15", "6", "10", "85"], a: 2, h: "a1 + 15(5) = 85 ومنها a1 = 10." },
+            { q: "متتالية حسابية حدها الأول يساوي 6 واساسها 4 أوجد مجموع أول 20 حد منها", o: ["15", "700", "880", "42"], a: 2, h: "S20 = (20/2)(2(6) + 19(4)) = 10(12 + 76) = 880." },
+            { q: "متتالية حسابية عدد حدودها 16 حدها الأول 3 وحدها الأخير 39 احسب مجموعها.", o: ["700", "70", "336", "115"], a: 2, h: "Sn = (n/2)(a1 + an) = (16/2)*(3 + 39) = 8 * 42 = 336." },
+            { q: "متتالية هندسية حدها الأول 10 واساسها 5 احسب مجموع أول ثمانية حدود منها", o: ["976560", "123369", "127893", "500"], a: 0, h: "باستخدام قانون مجموع المتتابعة الهندسية." },
+            { q: "إذا كان لدينا متتالية حسابية حدها الأول 5 واساسها 2، فإن حدها العام هو:", o: ["7-2n", "7+2n", "لا شيء مما سبق", "3+2n"], a: 3, h: "an = 5 + (n-1)2 = 3 + 2n." },
+            { q: "إذا كان لدينا متتالية هندسية حدها الأول 1 واساسها 3 ، فإن حدها العام هو:", o: ["3n-1", "3*1^{n-1}", "3^{n-1}", "لا شيء مما سبق"], a: 2, h: "an = a1 * r^(n-1) = 1 * 3^(n-1)." },
+            { q: "المتتالية : 1, 1/2, 1/4, 1/8, ...", o: ["ليست حسابية ولا هندسية", "هندسية واساسها 2", "حسابية واساسها 1/2", "هندسية واساسها 1/2"], a: 3, h: "كل حد يُقسم على 2 (يضرب في 1/2)." },
+            { q: "متتالية حسابية حدها الأول 4 واساسها 2 فإن مجموع أول ستة حدود منها يساوي:", o: ["74", "54", "لا شيء مما سبق", "64"], a: 1, h: "S6 = (6/2)(2(4) + 5(2)) = 3 * 18 = 54." },
+            { q: "متتالية هندسية حدها الأول 5 واساسها 6 ، فان مجموع اول أربعة حدود منها يساوي:", o: ["6475", "-925", "1295", "لا شيء مما سبق"], a: 2, h: "S4 = 5*(6^4 - 1)/(6-1) = 1295." },
+            { q: "المتتالية 4, 20, 100, 500, ...", o: ["ليست حسابية ولا هندسية", "هندسية واساسها 5", "حسابية واساسها 5", "حسابية واساسها 15"], a: 1, h: "كل حد يُضرب في 5." },
+            { q: "متتالية هندسية حدها الأول 6 واساسها 2، فان قيمة الحد الرابع منها يساوي:", o: ["-1080", "192", "48", "لا شيء"], a: 2, h: "a4 = 6 * 2^3 = 48." },
+            { q: "الحد العاشر من المتتالية الحسابية التي حدها الأول -15 واساسها 5 هو", o: ["60", "-60", "30", "50"], a: 2, h: "a10 = -15 + 9(5) = -15 + 45 = 30." },
+            { q: "متتالية هندسية حدها الأول 4 و اساسها 3 فإن الحد التاسع من هذه المتتالية يساوي", o: ["78732", "8748", "26244", "12"], a: 2, h: "a9 = 4 * 3^8 = 26244." },
+            { q: "مجموع متسلسلة الاعداد الطبيعية من العدد الأول الي العدد 199 يكون", o: ["2168", "19900", "199", "1990"], a: 1, h: "المجموع = n(n+1)/2 = 199(200)/2 = 19900." }
         ];
 
-        const mcqQuestions = [
-            { id: 1, text: "الهدف الرئيسي للإدارة المالية هو:", opts: ["أ) زيادة المبيعات فقط", "ب) تعظيم قيمة المنشأة وتحقيق التوازن بين الربحية والسيولة", "ج) تخفيض الضرائب فقط", "د) زيادة عدد العاملين"], correct: 1, exp: "الهدف الأسمى للإدارة المالية الحديثة هو تعظيم ثروة الملاك/قيمة المنشأة والموازنة بين الربحية العالية والسيولة الآمنة.", hint: "لا يقتصر الأمر على الربح، بل يشمل استدامة وقيمة الشركة." },
-            { id: 2, text: "تعد البنوك التجارية من المؤسسات:", opts: ["أ) غير المالية", "ب) الحكومية فقط", "ج) المالية المصرفية", "د) الصناعية"], correct: 2, exp: "البنوك التجارية هي جوهر المؤسسات المالية المصرفية التي تقبل الودائع وتمنح الائتمان.", hint: "هي أساس العمل المصرفي المالي." },
-            { id: 3, text: "السوق الذي يتعامل في الأدوات قصيرة الأجل هو:", opts: ["أ) سوق رأس المال", "ب) سوق النقد", "ج) سوق السلع", "د) سوق المشتقات"], correct: 1, exp: "سوق النقد (Money Market) مخصص للأدوات المالية التي تستحق خلال سنة أو أقل.", hint: "سوق رأس المال للطويل، فماذا عن القصير؟" },
-            { id: 4, text: "من مهام البنك المركزي:", opts: ["أ) بيع السلع الاستهلاكية", "ب) إصدار النقد وتنظيم السياسة النقدية", "ج) تمويل التجارة لخارجية فقط", "د) إدارة الشركات الخاصة"], correct: 1, exp: "البنك المركزي هو بنك الإصدار والمشرف على السياسة النقدية للدولة.", hint: "من يطبع النقود ويراقب البنوك؟" },
-            { id: 5, text: "تُعتبر شركات التأمين من المؤسسات المالية:", opts: ["أ) المصرفية", "ب) الإنتاجية", "ج) غير المصرفية", "د) التجارية فقط"], correct: 2, exp: "هي مؤسسات مالية تقوم بالوساطة ولكنها (غير مصرفية) لأنها لا تتلقى ودائع بنكية تقليدية.", hint: "هل تفتح حساباً جارياً في شركة تأمين؟" },
-            { id: 6, text: "مخاطر الائتمان تعني", opts: ["أ) تقلب أسعار الأسهم", "ب) عدم قدرة المقترض على السداد", "ج) تغير سعر الصرف", "د) ارتفاع تكاليف الإنتاج"], correct: 1, exp: "خطر الائتمان هو تعثر العميل وعدم سداده لأصل القرض أو الفوائد في موعدها.", hint: "الائتمان يعني السلف أو القرض." },
-            { id: 7, text: "البورصة تساهم في:", opts: ["أ) زيادة التضخم", "ب) تجميد رؤوس الأموال", "ج) جذب الاستثمارات وتنشيط التداول", "د) إلغاء الوساطة المالية"], correct: 2, exp: "سوق الأوراق المالية (البورصة) يوفر السيولة ويشجع الاستثمار وتحويل المدخرات لتمويل.", hint: "كيف تساعد البورصة الشركات في الحصول على أموال؟" },
-            { id: 8, text: "من أهداف الإدارة المالية:", opts: ["أ) السيولة", "ب) تحقيق الاستقرار المالي", "ج) الإنتاج", "د) الاستثمار"], correct: 1, exp: "الاستقرار المالي يضمن توازن الهيكل المالي واستمرار الشركة في السوق.", hint: "الهدف الذي يحمي الشركة من الإفلاس." },
-            { id: 9, text: "والنظام المالي يساعد في:", opts: ["أ) تعطيل المدخرات", "ب) تخصيص الموارد بكفاءة", "ج) تقليل الاستثمارات", "د) منع التداول"], correct: 1, exp: "توجيه الأموال من وحدات الفائض إلى وحدات العجز يعتبر تخصيصاً كفؤاً للموارد.", hint: "نقل المال لمن يحتاجه للإنتاج." },
-            { id: 10, text: "الوساطة المالية تعني:", opts: ["أ) بيع المنتجات الصناعية", "ب) نقل الأموال من المدخرين إلى المستثمرين", "ج) طباعة النقود", "د) فرض الضرائب"], correct: 1, exp: "الوسيط المالي يقف بين أصحاب المدخرات (وحدات الفائض) والمستثمرين (وحدات العجز).", hint: "حلقة الوصل بين من يملك المال ومن يحتاجه." },
-            { id: 11, text: "من أهم نواحي القصور في التحليل المالي أنه يعتمد على:", opts: ["أ) البيانات المستقبلية", "ب) البيانات التاريخية", "ج) البيانات النوعية", "د) التوقعات الاقتصادية"], correct: 1, exp: "القوائم المالية تعكس أحداثاً ماضية (تاريخية) قد لا تكون مؤشراً دقيقاً للمستقبل.", hint: "الأرقام المحاسبية تسجل ما حدث فعلاً في الماضي." },
-            { id: 12, text: "يرجع القصور في المقارنة بين البنوك إلى اختلاف:", opts: ["أ) حجم الفروع", "ب) السياسات المحاسبية", "ج) عدد العملاء", "د) أساليب التسويق"], correct: 1, exp: "اختلاف طرق الإهلاك وتقييم المخزون والمخصصات (السياسات المحاسبية) يجعل المقارنة مضللة أحياناً.", hint: "كيف يحسب كل بنك أرباحه وأصوله؟" },
-            { id: 13, text: "أي من الآتي يُعد من العوامل غير المالية؟", opts: ["أ) نسبة السيولة", "ب) معدل الربحية", "ج) كفاءة الإدارة", "د) حجم الودائع"], correct: 2, exp: "كفاءة الإدارة، السمعة، والبيئة القانونية هي عوامل لا تقاس مباشرة بالأرقام المالية.", hint: "شيء لا يكتب في الميزانية بالأرقام." },
-            { id: 14, text: "يؤدي التضخم إلى:", opts: ["أ) زيادة دقة التحليل المالي", "ب) ثبات القوة الشرائية للنقود", "ج) تشويه القيم المالية الحقيقية", "د) إلغاء التحليل المالي"], correct: 2, exp: "التضخم يغير قيمة العملة، مما يجعل الأرقام التاريخية في الميزانية لا تعكس القوة الشرائية الحالية.", hint: "الجنيه اليوم ليس كالجنيه أمس." },
-            { id: 15, text: "من أوجه القصور في الاعتماد على النسب المالية فقط:", opts: ["أ) تجاهل التدفقات النقدية", "ب) زيادة دقة النتائج", "ج) سهولة المقارنة", "د) تحسين القرار المالي"], correct: 0, exp: "النسب تعتمد على الاستحقاق المحاسبي وقد تتجاهل التدفقات النقدية الفعلية ومخاطر السيولة الحقيقية.", hint: "الربح الدفتري لا يعني وجود نقدية بالخزينة." },
-            { id: 16, text: "يختلف التحليل المالي للبنوك التجارية عن الاستثمارية بسبب اختلاف:", opts: ["أ) السياسات النقدية", "ب) طبيعة النشاط وحجم المؤسسة", "ج) السياسة الائتمانية", "د) تعليمات البنك المركزي"], correct: 1, exp: "نشاط البنك التجاري (إقراض/ودائع قصيرة) يختلف جذرياً عن الاستثماري (أسواق مالية وشركات).", hint: "ماذا يبيع ويشتري كل بنك؟" },
-            { id: 17, text: "يتأثر التحليل المالي بنتائج:", opts: ["أ) البيئة الاقتصادية العامة", "ب) البيئة القانونية فقط", "ج) البيئة الداخلية فقط", "د) العوامل الشخصية"], correct: 0, exp: "حالة الركود أو الانتعاش الاقتصادي تنعكس مباشرة على نتائج ومؤشرات البنك.", hint: "المناخ العام للسوق يؤثر على كل شيء." },
-            { id: 18, text: "من وسائل الحد من نواحي القصور في التحليل المالي:", opts: ["أ) تجاهل التحليل المالي", "ب) الاعتماد على النسب فقط", "ج) استخدام التحليل التنبؤي", "د) إلغاء القوائم المالية"], correct: 2, exp: "يجب دعم البيانات التاريخية بتحليلات تنبؤية للمستقبل وموازنات تقديرية.", hint: "النظر للمستقبل بدلاً من الاعتماد الكلي على الماضي." },
-            { id: 19, text: "يهدف دمج العوامل غير المالية مع التحليل المالي إلى:", opts: ["أ) زيادة تعقيد التحليل", "ب) تقليل المخاطر", "ج) تحسين جودة القرار المالي", "د) إلغاء التحليل التقليدي"], correct: 2, exp: "الرؤية الشاملة (مالية + غير مالية) تعطي تقييماً أدق وتصنع قراراً أفضل.", hint: "أخذ الصورة كاملة يجعل القرار أكثر صواباً." },
-            { id: 20, text: "من نتائج تجاهل نواحي القصور في التحليل المالي:", opts: ["أ) قرارات مالية رشيدة", "ب) استقرار مالي أكبر", "ج) قرارات مالية غير دقيقة", "د) زيادة كفاءة التحليل"], correct: 2, exp: "الاعتماد الأعمى على الأرقام دون إدراك عيوبها يؤدي لاتخاذ قرارات خاطئة.", hint: "إذا اعتمدت على أداة بها عيب دون أن تنتبه، ماذا ستكون النتيجة؟" },
-            { id: 21, text: "يقصد بالدورة النقدية:", opts: ["أ) دورة الإنتاج", "ب) حركة النقد داخل المؤسسة", "ج) دورة رأس المال", "د) دورة المخزون"], correct: 1, exp: "الدورة النقدية (Cash Cycle) تتبع مسار النقد من خروجه لشراء المدخلات حتى عودته من المبيعات.", hint: "دخول وخروج السيولة." },
-            { id: 22, text: "من التدفقات النقدية الداخلة:", opts: ["أ) سداد القروض", "ب) منح القروض", "ج) تحصيل الأقساط", "د) المصروفات الإدارية"], correct: 2, exp: "التحصيل يمثل نقداً يدخل لخزينة البنك/المؤسسة.", hint: "فلوس تدخل الخزنة." },
-            { id: 23, text: "تهدف إدارة الدورة النقدية إلى", opts: ["أ) تعظيم المخاطر", "ب) تحقيق التوازن بين السيولة والربحية", "ج) زيادة المصروفات", "د) تقليل الإيرادات"], correct: 1, exp: "الهدف دائماً هو عدم تعطيل النقد (ربحية) وتوفيره وقت الحاجة (سيولة).", hint: "المعادلة الذهبية للإدارة المالية." },
-            { id: 24, text: "من مراحل الدورة النقدية :", opts: ["أ) الإنتاج", "ب) التخزين", "ج) استرداد النقدية", "د) التسويق"], correct: 2, exp: "مرحلة تحصيل الديون واسترداد النقد تعتبر المرحلة النهائية والأهم لإغلاق الدورة.", hint: "عودة الأموال للمؤسسة." },
-            { id: 25, text: "تؤثر سياسة الائتمان على", opts: ["أ) الدورة النقدية", "ب) الهيكل الإداري", "ج) عدد الفروع", "د) الموارد البشرية"], correct: 0, exp: "تسهيل الائتمان (البيع الآجل) يطيل الدورة النقدية ويؤخر التدفقات الداخلة.", hint: "فترات السداد والتحصيل تؤثر على ماذا؟" },
-            { id: 26, text: "يمثل الفرق بين التدفقات الداخلة والخارجة", opts: ["أ) رأس المال", "ب) صافي التدفق النقدي", "ج) الأرباح", "د) الاحتياطيات"], correct: 1, exp: "المقبوضات - المدفوعات = صافي التدفق النقدي (Cash Flow).", hint: "الناتج الصافي لحركة الأموال." },
-            { id: 27, text: "من مخاطر الدورة النقدية:", opts: ["أ) مخاطر السيولة", "ب) مخاطر التسويق", "ج) مخاطر الإنتاج", "د) المخاطر البيئية"], correct: 0, exp: "طول الدورة النقدية يعرض المؤسسة لخطر نقص السيولة وعدم القدرة على السداد.", hint: "خطر مرتبط بنقص الأموال السائلة." },
-            { id: 28, text: "الإفراط في السيولة يؤدي إلى", opts: ["أ) زيادة الربحية", "ب) انخفاض الربحية", "ج) انعدام المخاطر", "د) زيادة التكاليف الثابتة"], correct: 1, exp: "تعطيل الأموال كسيولة عاطلة يحرم المؤسسة من استثمارها، مما يقلل العائد والربحية.", hint: "الفلوس المركونة لا تأتي بأرباح." },
-            { id: 29, text: "تبدأ الدورة النقدية عادةً بـ:", opts: ["أ) تحصيل الأقساط", "ب) الحصول على النقدية", "ج) سداد الالتزامات", "د) إعادة التوظيف"], correct: 1, exp: "تبدأ بتوفير أو الحصول على النقدية من مصادر التمويل لضخها في الأصول والأنشطة.", hint: "أول خطوة هي توفير المال اللازم." },
-            { id: 30, text: "تعد الدورة النقدية مؤشرًا على", opts: ["أ) كفاءة الإدارة النقدية", "ب) عدد العملاء", "ج) حجم المؤسسة", "د) الهيكل التنظيمي"], correct: 0, exp: "قصر الدورة يشير إلى كفاءة الإدارة في التحصيل وإدارة النقد.", hint: "مدى براعة المدير المالي." },
-            { id: 31, text: "الهدف الأساسي لبيان التدفق النقدي هو:", opts: ["أ) قياس الربحية", "ب) قياس السيولة", "ج) قياس الإنتاج", "د) قياس المبيعات"], correct: 1, exp: "القائمة توضح المقبوضات والمدفوعات الفعلية، وهي المقياس الأدق للسيولة.", hint: "يُركز على (النقدية)." },
-            { id: 32, text: "أي من التالي يُضاف عند إعداد التدفق النقدي بالطريقة غير المباشرة؟", opts: ["أ) زيادة الخصوم", "ب) الإهلاك", "ج) شراء معدات", "د) سداد قرض"], correct: 1, exp: "الإهلاك مصروف غير نقدي، يُخصم للوصول لصافي الدخل، لذا يُضاف مرة أخرى للوصول للتدفق النقدي.", hint: "مصروف دفتري لا تخرج بسببه نقود حقيقية." },
-            { id: 33, text: "زيادة الدائنين تؤدي إلى:", opts: ["أ) نقص النقدية", "ب) عدم التأثير", "ج) زيادة النقدية", "د) انخفاض الربح"], correct: 2, exp: "زيادة الدائنين تعني أن المؤسسة احتفظت بنقديتها ولم تسددها فوراً (بمثابة مصدر تدفق موجب).", hint: "تأخير دفع الموردين يحافظ على الكاش معك." },
-            { id: 34, text: "شراء أوراق مالية طويلة الأجل يُصنف ضمن:", opts: ["أ) أنشطة تشغيلية", "ب) أنشطة تمويلية", "ج) أنشطة استثمارية", "د) أنشطة إدارية"], correct: 2, exp: "شراء وبيع الأصول الطويلة الأجل والاستثمارات يندرج تحت الأنشطة الاستثمارية.", hint: "شراء أصل للاستثمار." },
-            { id: 35, text: "توزيع الأرباح النقدية يُعد:", opts: ["أ) نشاطًا تشغيليًا", "ب) نشاطًا تمويليًا", "ج) نشاطًا استثماريًا", "د) إيرادا"], correct: 1, exp: "توزيع الأرباح يعتبر عائداً مقدم لمقدمي التمويل (المساهمين)، لذا يصنف نشاط تمويلي.", hint: "دفع أموال للمُلاك." },
-            { id: 36, text: "المعادلة الصحيحة لبيان التدفق النقدي هي:", opts: ["أ) الربح = الإيرادات – المصروفات", "ب) النقدية = الأصول - الخصوم", "ج) صافي التغير في النقدية = تشغيلية + استثمارية + تمويلية", "د) رأس المال العامل = النقدية فقط"], correct: 2, exp: "القائمة تجمع صافي التدفقات من الأنشطة التشغيلية، الاستثمارية، والتمويلية.", hint: "مجموع الأقسام الثلاثة للقائمة." },
-            { id: 37, text: "الطريقة المباشرة تعتمد على:", opts: ["أ) صافي الربح", "ب) المقبوضات والمدفوعات الفعلية", "ج) الإهلاك", "د) رأس المال"], correct: 1, exp: "الطريقة المباشرة تحسب النقد المقبوض من العملاء والنقد المدفوع للموردين بشكل مباشر.", hint: "تحسب الداخل والخارج صراحة." },
-            { id: 38, text: "إذا زادت الذمم المدينة بمبلغ 100,000 جنيه فإنها:", opts: ["أ) تُضاف للتدفق", "ب) تُخصم من التدفق", "ج) لا تؤثر", "د) تزيد الربح فقط"], correct: 1, exp: "زيادة الذمم تعني أموالاً لم يتم تحصيلها بعد، فَتُخصم من صافي الدخل في الطريقة غير المباشرة.", hint: "فلوس لك عند الناس ولم تأخذها." },
-            { id: 39, text: "التدفق التشغيلي الموجب يشير إلى:", opts: ["أ) ضعف النشاط", "ب) كفاءة النشاط الأساسي", "ج) ارتفاع الديون", "د) خسارة محاسبية"], correct: 1, exp: "دليل على أن نشاط الشركة اليومي قادر على توليد نقدية كافية لتغطية التكاليف.", hint: "نجاح صميم عمل الشركة." },
-            { id: 40, text: "الفرق بين الربح والتدفق النقدي يرجع أساسا إلى:", opts: ["أ) تغير أسعار الفائدة", "ب) أساس الاستحقاق", "ج) التضخم", "د) حجم البنك"], correct: 1, exp: "الربح يحسب بأساس الاستحقاق (إيراد ومصروف يخص السنة)، بينما التدفق يحسب بالأساس النقدي (المقبوض والمدفوع فعلاً).", hint: "المبدأ المحاسبي المتبع في قائمة الدخل." },
-            { id: 41, text: "من الأنشطة التشغيلية:", opts: ["أ) بيع أصل ثابت", "ب) إصدار أسهم", "ج) تحصيل الفوائد", "د) شراء استثمارات طويلة الأجل"], correct: 2, exp: "في البنوك والمؤسسات المالية، الفوائد المحصلة والمدفوعة تعتبر من صميم العمليات التشغيلية.", hint: "نشاط يومي للبنك." },
-            { id: 42, text: "تعتمد الطريقة غير المباشرة على:", opts: ["أ) المقبوضات النقدية", "ب) صافي الربح", "ج) حجم المبيعات", "د) رأس المال"], correct: 1, exp: "تبدأ بصافي الربح الدفتري وتقوم بإجراء تعديلات عليه للوصول للتدفق النقدي.", hint: "تبدأ برقم من قائمة الدخل." },
-            { id: 43, text: "الإهلاك في بيان التدفق النقدي:", opts: ["أ) يخصم", "ب) لا يعالج", "ج) يضاف مرة أخرى", "د) يحذف من القوائم"], correct: 2, exp: "لأنه مصروف لم يصاحبه خروج نقدية، يضاف لصافي الربح لمعادلته.", hint: "إلغاء تأثير مصروف غير نقدي." },
-            { id: 44, text: "من الأنشطة الاستثمارية:", opts: ["أ) تحصيل الأقساط", "ب) شراء أوراق مالية طويلة الأجل", "ج) سداد المصروفات", "د) دفع الأجور"], correct: 1, exp: "شراء أصل أو استثمار طويل الأجل.", hint: "توجيه المال لتكوين أصول للمستقبل." },
-            { id: 45, text: "من الأنشطة التمويلية:", opts: ["أ) بيع أصل ثابت", "ب) شراء معدات", "ج) سداد قرض طويل الأجل", "د) تحصيل عمولات"], correct: 2, exp: "سداد أصل القرض أو الحصول عليه يعتبر نشاط تمويلي.", hint: "التعامل مع المقرضين والملاك." },
-            { id: 46, text: "يهدف بيان التدفق النقدي إلى:", opts: ["أ) إلغاء القوائم الأخرى", "ب) تقييم السيولة", "ج) تحديد الهيكل الإداري", "د) زيادة المصروفات"], correct: 1, exp: "القائمة مخصصة للإجابة على سؤال: من أين أتى النقد وأين ذهب؟ وهو مقياس السيولة.", hint: "معرفة وضع الخزينة." },
-            { id: 47, text: "يستخدم بيان التدفق النقدي في:", opts: ["أ) التسويق", "ب) التخطيط المالي", "ج) الموارد البشرية", "د) التنظيم الإداري"], correct: 1, exp: "يعتمد عليه المدير المالي لتخطيط الاحتياجات النقدية وتفادي العجز.", hint: "أداة للإدارة المالية." },
-            { id: 48, text: "ما هو تمويل الأصول الثابتة؟", opts: ["أ) قصير الأجل", "ب) طويل الأجل", "ج) ذاتي فقط", "د) إيجار فقط."], correct: 1, exp: "الأصول الثابتة عمرها طويل، لذا يجب أن تمول بمصادر طويلة الأجل لضمان التوافق وتجنب مخاطر السيولة.", hint: "عمر الأصل يحدد نوع التمويل." },
-            { id: 49, text: "مصدر داخلي ؟", opts: ["أ) قروض", "ب) أسهم", "ج) أرباح محتجزة", "د) سندات."], correct: 2, exp: "الأرباح المحتجزة هي أموال نتجت من داخل المنشأة وتم الاحتفاظ بها للتمويل الذاتي، وهي الأقل تكلفة.", hint: "أموال من قلب الشركة نفسها." },
-            { id: 50, text: "ميزة الإيجار التمويلي ؟", opts: ["أ) عبء كبير", "ب) تملك فوري", "ج) توفير سيولة", "د) ارتفاع تكلفة."], correct: 2, exp: "الإيجار يسمح بالحصول على الأصل فوراً وسداد ثمنه كأقساط، مما يحمي سيولة الشركة.", hint: "الدفع بالتقسيط بدلاً من الكاش يوفر ماذا؟" },
-            { id: 51, text: "معيار اختيار التمويل ؟", opts: ["أ) عدد موظفين", "ب) تكلفة", "ج) لون الأصول", "د) طقس."], correct: 1, exp: "تكلفة التمويل هي المعيار الأهم؛ فلا بد أن يكون العائد من استثمار الأموال أعلى من تكلفتها.", hint: "ما يهم المستثمر هو حساب المصروفات والفوائد." },
-            { id: 52, text: "أثر التمويل غير الرشيد؟", opts: ["أ) ربحية", "ب) مخاطر", "ج) سيولة", "د) نمو."], correct: 1, exp: "الاعتماد الخاطئ على الديون بكثافة أو التمويل غير المتوازن يعرض الشركة لمخاطر العجز عن السداد.", hint: "كثرة الديون الخاطئة تؤدي إلى الإفلاس." },
-            { id: 53, text: "تمويل متداولة لـ ؟", opts: ["أ) توسع", "ب) تشغيل يومي", "ج) إهلاك", "د) ضرائب."], correct: 1, exp: "الأصول المتداولة (كالمخزون والمدينين) تستخدم لتسيير النشاط والتشغيل اليومي المعتاد للشركة.", hint: "حركة العمل اليومية." },
-            { id: 54, text: "التمويل الذاتي يحد من ؟", opts: ["أ) تكلفة", "ب) توسع سريع", "ج) مخاطر", "د) ربح."], correct: 1, exp: "رغم أن التمويل الذاتي أقل مخاطرة وتكلفة، إلا أن محدودية الأرباح المحتجزة تعيق خطط التوسع السريعة الكبيرة للشركة.", hint: "لا تملك أموالاً لا نهائية داخلياً لتبني مصانع جديدة بسرعة." },
-            { id: 55, text: "اقتراض مناسب إذا ؟", opts: ["أ) العائد أعلى من التكلفة", "ب) التكلفة أعلى من العائد", "ج) بدون سداد", "د) قصير."], correct: 0, exp: "الاقتراض يكون مجدياً اقتصادياً فقط إذا كان العائد المتوقع من المشروع يتجاوز فائدة وتكلفة القرض.", hint: "لو كسبت 15% ودفعت للبنك 10%، هذا استثمار مناسب." },
-            { id: 56, text: "أمثلة أصول ثابتة ؟", opts: ["أ) مخزون", "ب) آلات", "ج) مدينين", "د) نقد."], correct: 1, exp: "الآلات، المعدات، والمباني هي أصول ثابتة تستخدم لعدة سنوات، بينما الباقي أصول متداولة.", hint: "شيء تشتريه ليعيش معك سنوات طويلة." },
-            { id: 57, text: "هدف تمويل الأصول ؟", opts: ["أ) إفلاس", "ب) كفاءة", "ج) خسائر", "د) بطء."], correct: 1, exp: "توفير الموارد المناسبة للأصول يضمن الكفاءة الإنتاجية واستمرار التشغيل دون إرهاق السيولة.", hint: "الوصول لأفضل إنتاجية بأقل تكلفة ومخاطرة." }
+        const tfData = [
+            { q: "تكون المجموعتان منفصلتان اذا كان $A=\\{a,b,c\\}, B=\\{c,d,e\\}$", a: false, h: "بينهما عنصر مشترك وهو c، لذا فهما ليستا منفصلتين." },
+            { q: "$\\overline{A\\cup B} = \\overline{A} \\cup \\overline{B}$", a: false, h: "خطأ. حسب قانون ديمورغان: مكملة الاتحاد هي تقاطع المكملات (يجب أن تكون $\\cap$)." },
+            { q: "$A\\cap \\overline{A} = \\emptyset$", a: true, h: "صح. لا يوجد أي عنصر مشترك بين المجموعة ومكملتها." },
+            { q: "تكون المجموعتان منفصلتان اذا كان $A=\\{a,b,f\\}, B=\\{c,d,e\\}$", a: true, h: "صح. لا يوجد أي عنصر مشترك بينهما." },
+            { q: "إذا بدلت الصفوف بالأعمدة فقط نحصل على مبدول المصفوفة", a: true, h: "صح. هذا هو التعريف الرياضي لمبدول المصفوفة." },
+            { q: "الدالة التربيعية ترسم بخط افقي موازي محور السينات", a: false, h: "خطأ. الدالة الثابتة هي التي ترسم بخط أفقي." },
+            { q: "ان رتبة المحدد من مصفوفة 3X1 تساوي رتبة المحدد من مصفوفة 1X3", a: false, h: "خطأ. المحدد لا يُحسب إلا للمصفوفات المربعة فقط." },
+            { q: "الدالة الثابتة هي الدالة التي يكون فيها قيمة (X) مساوية لقيمة f(x) دائما", a: false, h: "خطأ. هذه تسمى الدالة المحايدة." },
+            { q: "يقال أن A مجموعة جزئية من B إذا كانت عناصر A لا تمثل جزء من عناصر B", a: false, h: "خطأ. العكس تماماً هو الصحيح." },
+            { q: "المتغير التابع هو المتغير الذي تتحدد قيمته بناءا على متغيرات اخري", a: true, h: "صح. يتبع في قيمته المتغير المستقل." },
+            { q: "يقال أن المصفوفة مفردة اذا كان قيمة محدد المصفوفة تساوى 0", a: true, h: "صح. المصفوفة المفردة (Singular) محددها يساوي صفر." },
+            { q: "هو -9 عدد كلي", a: false, h: "خطأ. الأعداد الكلية تبدأ من صفر ولا تشمل الأعداد السالبة." },
+            { q: "يشترط لضرب مصفوفتين ان يكون عدد اعمدة المصفوفة الأولي مساويا لعدد الصفوف للمصفوفة الثانية", a: true, h: "صح. هذا هو شرط ضرب المصفوفات الأساسي." },
+            { q: "المصفوفة القطرية هي مصفوفة مجموع عناصر قطرها الرئيسي متساوية وتساوي الواحد الصحيح", a: false, h: "خطأ. هذه تسمى مصفوفة الوحدة، وليس القطرية بشكل عام." },
+            { q: "المصفوفة القياسية التي يكون مجموع عناصر قطرها الرئيسي متساوية", a: true, h: "صح. (يقصد جميع عناصر قطرها متساوية)." },
+            { q: "يقال أن المصفوفة متماثلة اذا تساوت المصفوفة مع مبدولها", a: true, h: "صح. $A = A^T$." },
+            { q: "اذا كان $A=\\{a,b,e\\}, B=\\{b,c,d,f,g,k\\}$ فان $A \\subset B$", a: false, h: "خطأ. العنصر a غير موجود في B، لذا A ليست جزئية من B." },
+            { q: "المتغير المستقل هو المتغير الذي يتأثر بالمتغير التابع", a: false, h: "خطأ. التابع هو الذي يتأثر بالمستقل." },
+            { q: "يقال أن الدالة تربيعية إذا كانت من الدرجة الأولي", a: false, h: "خطأ. الدالة التربيعية من الدرجة الثانية." }
         ];
 
-        const essayQuestions = [
-            { id: 1, q: "1. اذكر مفهوم ووظائف الادارة المالية", a: "<b>مُلخص:</b> توفير الأموال اللازمة واستخدامها الأمثل لتحقيق أهداف الشركة، وتشمل وظائفها الأساسية: التخطيط (التهيؤ للمستقبل)، التنظيم (رفع كفاءة الأداء)، والرقابة المالية (المتابعة وتقييم القرارات)." },
-            { id: 2, q: "2. اذكر مفهوم طبيعة المؤسسات المالية", a: "<b>مُلخص:</b> هي منظمات تختلف عن غيرها بكون منتجاتها 'أصولاً مالية' بدلاً من السلع الحقيقية، وتعتمد بشكل هائل على أموال المودعين (الغير) مقارنة بحقوق ملكيتها المنخفضة." },
-            { id: 3, q: "3. عرف البنوك التجارية مع ذكر انشطتها", a: "<b>مُلخص:</b> مصارف تقبل الودائع وتمنح القروض. <b>أنشطتها:</b> أساسية (تلقي ودائع، قروض، استثمار أوراق مالية)، وفرعية (بيع عملات، تحصيل شيكات، بطاقات ائتمان، وتأجير خزائن)." },
-            { id: 4, q: "4. اذكر وظائف المؤسسات المالية التي تقوم بدور الوساطة المالية", a: "<b>مُلخص:</b> تجميع المدخرات، تسهيل التمويل بكونها حلقة وصل، التوفيق بين آجال المودعين والمقترضين، توفير معلومات متخصصة، وتقليل المخاطر عبر التنويع." },
-            { id: 5, q: "5. ما هي انواع شركات التامين", a: "<b>مُلخص:</b> تنقسم إلى 3 أنواع رئيسية: شركات تأمين عامة (للممتلكات والمسؤولية)، شركات تأمين على الحياة، وشركات إعادة التأمين." },
-            { id: 6, q: "6. قارن بين تمويل الأصول الثابتة والمتداولة.", a: "<b>مُلخص:</b> الأصول الثابتة (طويلة الأجل كالمباني) تمول بمصادر طويلة لتناسب عمرها وتوسعاتها. والأصول المتداولة (قصيرة كالمخزون) تمول بمصادر قصيرة لدعم التشغيل اليومي." },
-            { id: 7, q: "7. ما مصادر التمويل وكيف تختار؟", a: "<b>مُلخص:</b> المصادر: داخلية (أرباح محتجزة) أو خارجية (قروض/أسهم). ويُختار المصدر بشرط أساسي: أن يكون العائد المتوقع من الاستثمار (أكبر) من تكلفة الحصول على التمويل." },
-            { id: 8, q: "8. ناقش الإيجار التمويلي كأداة.", a: "<b>مُلخص:</b> هو استئجار أصل (كمعدات باهظة) مقابل دفعات دورية لينتهي بتملكه؛ ميزته الكبرى توفير السيولة، وعيبه تحمل تكلفة فوائد إضافية." },
-            { id: 9, q: "9. وكيف يؤثر التمويل على الأداء؟", a: "<b>مُلخص:</b> التمويل الرشيد والمتوازن يحسن الربحية والسيولة، بينما التمويل الخاطئ (كزيادة الديون بشكل مفرط) يعرض الشركة لمخاطر العجز والإفلاس." },
-            { id: 10, q: "10. اذكر الوسائل التي يمكن للبنك التجارى اللجوء اليها لمقابله احتياجات السيولة", a: "<b>مُلخص:</b> وسيلتين أساسيتين: 1) إدارة الأصول: عبر بيع (تسييل) الأصول السائلة السريعة كأذون الخزانة. 2) إدارة الالتزامات: عبر اقتراض أموال جديدة أو إصدار شهادات إيداع." },
-            { id: 11, q: "11. اذكر انواع المؤسسات المالية", a: "<b>مُلخص:</b> أ) مؤسسات وساطة (منها ما يقبل ودائع كالبنوك التجارية، ومنها لا يقبل كشركات التأمين). ب) مؤسسات لا تقوم بالوساطة (كسماسرة وتجار الأوراق المالية)." },
-            { 
-                id: 12, 
-                q: `<b>مثال 1: فيما يلي القوائم الماليه لاحد البنوك التجارية في 2025/12/31 بملايين الجنيهات</b>
-                    <br><br><h4 class='font-bold text-center mb-2'>ميزانية عمومية</h4>
-                    <div class="overflow-x-auto"><table class="w-full text-sm text-center border-collapse border border-gray-300 mb-4">
-                        <thead>
-                            <tr class="bg-blue-100"><th class="border p-2 border-gray-300">الالتزامات وحقوق الملكية</th><th class="border p-2 border-gray-300">الاصول</th></tr>
-                        </thead>
-                        <tbody>
-                            <tr><td class="border p-2 border-gray-300">12 حق الملكية</td><td class="border p-2 border-gray-300">39 نقديه وارصده لدى البنك المركزي</td></tr>
-                            <tr><td class="border p-2 border-gray-300">130 الودائع</td><td class="border p-2 border-gray-300">57 ارصده لدى البنوك الاخرى</td></tr>
-                            <tr><td class="border p-2 border-gray-300">40 ارصده مستحقه للبنوك</td><td class="border p-2 border-gray-300">88 قروض وسلفيات</td></tr>
-                            <tr><td class="border p-2 border-gray-300">11 ارصده دائنه اخرى<br>3 ارباح العام المنتهى</td><td class="border p-2 border-gray-300">12 اسهم وسندات</td></tr>
-                            <tr class="font-bold bg-gray-50"><td class="border p-2 border-gray-300">127 اجمالى الالتزامات وحقوق الملكية</td><td class="border p-2 border-gray-300">196 اجمالى الاصول</td></tr>
-                        </tbody>
-                    </table></div>
-                    <h4 class='font-bold text-center mb-2'>حساب الارباح والخسائر</h4>
-                    <div class="overflow-x-auto"><table class="w-full text-sm text-center border-collapse border border-gray-300 mb-4">
-                        <thead>
-                            <tr class="bg-blue-100"><th class="border p-2 border-gray-300">له</th><th class="border p-2 border-gray-300">منه</th></tr>
-                        </thead>
-                        <tbody>
-                            <tr><td class="border p-2 border-gray-300">14 فوائد محصله</td><td class="border p-2 border-gray-300">11 فوائد مدفوعه</td></tr>
-                            <tr><td class="border p-2 border-gray-300">4 عائد خدمات مصرفيه</td><td class="border p-2 border-gray-300">4 مصروفات عمومية وادارية</td></tr>
-                            <tr><td class="border p-2 border-gray-300">1 ایرادات اخرى</td><td class="border p-2 border-gray-300">1 اهلاكات<br>3 صافي الربح</td></tr>
-                            <tr class="font-bold bg-gray-50"><td class="border p-2 border-gray-300">19 الاجمالي</td><td class="border p-2 border-gray-300">19 الاجمالي</td></tr>
-                        </tbody>
-                    </table></div>
-                    <b>المطلوب:</b>
-                    <ul class="list-disc list-inside mt-2">
-                        <li>حساب هامش سعر الفائده</li>
-                        <li>انتشار سعر الفائده</li>
-                        <li>صافي الاعباء الثابته</li>
-                        <li>ربحية البنك</li>
-                    </ul>`, 
-                a: `<b>الحل النموذجي:</b><br><br>
-                    <b>أ- هامش سعر الفائده</b> = ((الفوائد المحصله - الفوائد المدفوعه) / اجمالي الاصول الايراديه) × 100<br>
-                    = ((14 - 11) / (12 + 88 + 57)) × 100 = (3 / 157) × 100 = <b>1.91%</b> (ملاحظة: في المحاضرة تم التقريب إلى 3% بفرض الأصول الإيرادية 100)<br><br>
-                    <b>ب- انتشار سعر الفائدة</b> = (معدل العائد على الاصول الايرادية) - (معدل تكلفه الاموال)<br>
-                    = [(الفوائد المحصله / الاصول الايرادية) × 100] - [(الفوائد المدفوعه / الودائع) × 100]<br>
-                    = [(14 / 157) × 100] - [(11 / 130) × 100] = 8.92% - 8.46% = <b>0.46%</b><br><br>
-                    <b>ت- صافي الاعباء الثابته</b> = [(عائد الخدمات المصرفيه واى ايرادات اخرى) - مصروفات ادارية وعمومية] / اجمالى الاصول × 100<br>
-                    = [(4 + 1) - 4] / 196 × 100 = (1 / 196) × 100 = <b>0.51%</b><br><br>
-                    <b>ث- قياس ربحيه البنك:</b><br>
-                    1. <b>معدل العائد على حقوق الملكية</b> = [ارباح العام المنتهي (صافي الربح)] / [حقوق الملكية + (0.5 × ارباح العام المنتهى)] × 100<br>
-                       = 3 / [12 + (0.5 × 3)] × 100 = 3 / 13.5 × 100 = <b>22.2%</b><br>
-                    2. <b>معدل العائد على اجمالى الموارد المتاحه</b> = صافي الربح / (حق الملكية المعدل + الودائع) × 100<br>
-                       = 3 / (13.5 + 130) × 100 = 3 / 143.5 × 100 = <b>2.1%</b><br>
-                    3. <b>معدل العائد على الاصول</b> = صافي الربح / اجمالي الاصول × 100<br>
-                       = 3 / 196 × 100 = <b>1.5%</b><br>
-                    4. <b>معدل التوزيعات المدفوعه</b> = اجمالي التوزيعات / صافي الربح × 100 = 0 / 3 × 100 = <b>0%</b>` 
+        const essayData = [
+            {
+                q: "إذا كان $B=[1~4; 2~3], A=[2~5; 3~3]$. أوجد ناتج جمع A+B وناتج طرح A-B",
+                s: "الجمع: نجمع العناصر المتناظرة.<br> $A+B = [3~9; 5~6]$ <br><br>الطرح: نطرح العناصر المتناظرة.<br> $A-B = [1~1; 1~0]$"
             },
-            { 
-                id: 13, 
-                q: `<b>مثال 2: شركات التأمين (شرط النسبية)</b><br>
-                    أمن احد رجال الاعمال ضد السرقه على بضائع قيمتها 100,000 جنيه لدى ثلاث مؤمنين:
-                    <ul class="list-disc list-inside mt-2 mb-2">
-                        <li>فأمن لدى المؤمن <b>أ</b> بمبلغ 25,000 جم</li>
-                        <li>ولدى المؤمن <b>ب</b> بمبلغ 20,000 جم</li>
-                        <li>ولدى المؤمن <b>ج</b> بمبلغ 35,000 جم</li>
-                    </ul>
-                    <b>المطلوب:</b> حساب ما يدفعه كل مؤمن وما يتحمله المومن له علما بان الوثيقه تتضمن شرط النسبيه وذلك في الحالات الاتيه:<br>
-                    أ - سرقه ما قيمته 40,000 جنيه من المخزون<br>
-                    ب - سرقه ما قيمته 90,000 جنيه من المخزون`, 
-                a: `<b>الحل النموذجي:</b><br>
-                    بضائع = 100,000 جم<br>
-                    مبالغ التأمين = 25,000 (أ) + 20,000 (ب) + 35,000 (ج) = <b>80,000 جم</b> (إجمالي التأمين)<br>
-                    بما أن التأمين أقل من القيمة، يطبق شرط النسبية.<br><br>
-                    <b>الحالة (أ): سرقه ما قيمته 40,000 جم من المخزن</b><br>
-                    التعويض = الخسائر الفعلية × (مبلغ التامين / قيمة الشئ المؤمن عليه)<br>
-                    - ما يدفعه المؤمن <b>أ</b> = 40,000 × (25,000 / 100,000) = <b>10,000 جم</b><br>
-                    - ما يدفعه المؤمن <b>ب</b> = 40,000 × (20,000 / 100,000) = <b>8,000 جم</b><br>
-                    - ما يدفعه المؤمن <b>ج</b> = 40,000 × (35,000 / 100,000) = <b>14,000 جم</b><br>
-                    * اجمالي التعويض = 10,000 + 8,000 + 14,000 = <b>32,000 جم</b><br>
-                    * ما يتحمله المؤمن له = قيمة الخسائر الفعلية - اجمالي التعويض = 40,000 - 32,000 = <b>8,000 جم</b><br><br>
-                    
-                    <b>الحالة (ب): سرقه ما قيمته 90,000 من المخزون</b><br>
-                    - ما يدفعه المؤمن <b>أ</b> = 90,000 × (25,000 / 100,000) = <b>22,500 جم</b><br>
-                    - ما يدفعه المؤمن <b>ب</b> = 90,000 × (20,000 / 100,000) = <b>18,000 جم</b><br>
-                    - ما يدفعه المؤمن <b>ج</b> = 90,000 × (35,000 / 100,000) = <b>31,500 جم</b><br>
-                    * اجمالي التعويض = 22,500 + 18,000 + 31,500 = <b>72,000 جم</b><br>
-                    * ما يتحمله المؤمن له = 90,000 - 72,000 = <b>18,000 جم</b>` 
+            {
+                q: "إذا كان $B=[1~4; 2~3], A=[2~5; 3~3]$. أوجد حاصل ضرب AB وحاصل ضرب BA. هل يتساوى ناتج AB مع BA؟",
+                s: "$A \\times B = [(2\\times1 + 5\\times2)~(2\\times4 + 5\\times3); (3\\times1 + 3\\times2)~(3\\times4 + 3\\times3)] = [12~23; 9~21]$<br><br>$B \\times A = [(1\\times2 + 4\\times3)~(1\\times5 + 4\\times3); (2\\times2 + 3\\times3)~(2\\times5 + 3\\times3)] = [14~17; 13~19]$<br><br>نلاحظ أن: $AB \\neq BA$."
             },
-            { 
-                id: 14, 
-                q: `<b>مثال 3: شركات التأمين (الهلاك الكلي والجزئي)</b><br>
-                    أمن شخص على مصنع قيمته 10,000 جنيه لدى ثلاث مؤمنين كالاتي:
-                    <ul class="list-disc list-inside mt-2 mb-2">
-                        <li>لدى المؤمن <b>أ</b> بمبلغ 5,000 جم</li>
-                        <li>ولدى المؤمن <b>ب</b> بمبلغ 3,000 جم</li>
-                        <li>ولدى المؤمن <b>ج</b> بمبلغ 2,000 جم</li>
-                    </ul>
-                    <b>المطلوب:</b> احسب مبلغ التعويض الذي يدفعه كل مؤمن في الحالات الاتيه:<br>
-                    أ - هلاك المصنع بالكامل<br>
-                    ب - هلاك جزئي للمصنع قدرت خسائرة بمبلغ 5,000 جنيه`, 
-                a: `<b>الحل النموذجي:</b><br>
-                    قيمة المصنع = 10,000 جم<br>
-                    مبالغ التأمين = 5,000 (أ) + 3,000 (ب) + 2,000 (ج) = <b>10,000 جم</b> (تأمين كافي - إجمالي التأمين = القيمة)<br><br>
-                    <b>أ- هلاك المصنع بالكامل:</b><br>
-                    التعويض = الخسائر الفعلية × (مبلغ التامين / مجموع مبالغ التامين)<br>
-                    - المؤمن <b>أ</b> = 10,000 × (5,000 / 10,000) = <b>5,000 جم</b><br>
-                    - المؤمن <b>ب</b> = 10,000 × (3,000 / 10,000) = <b>3,000 جم</b><br>
-                    - المؤمن <b>ج</b> = 10,000 × (2,000 / 10,000) = <b>2,000 جم</b><br>
-                    * اجمالي التعويض = <b>10,000 جم</b><br><br>
-                    
-                    <b>ب - هلاك جزئي للمصنع قدرت خسائرة بمبلغ 5,000:</b><br>
-                    التعويض = الخسائر الفعلية × (مبلغ التامين / مجموع مبالغ التامين)<br>
-                    - المؤمن <b>أ</b> = 5,000 × (5,000 / 10,000) = <b>2,500 جم</b><br>
-                    - المؤمن <b>ب</b> = 5,000 × (3,000 / 10,000) = <b>1,500 جم</b><br>
-                    - المؤمن <b>ج</b> = 5,000 × (2,000 / 10,000) = <b>1,000 جم</b><br>
-                    * اجمالي التعويض = <b>5,000 جم</b> (مقدار الخسائر الفعلية)` 
+            {
+                q: "إذا كان $U=\\{2,4,6,8,10,12,14,16,18\\}$, $A=\\{4,6,8,10\\}$, $B=\\{2,8,12,18\\}$. أوجد $A \\cap B$, $A \\cup B$, $\\overline{A}$, $\\overline{B}$, $A-B$, $B-A$ وغيرها",
+                s: "$A \\cap B = \\{8\\}$<br>$A \\cup B = \\{2,4,6,8,10,12,18\\}$<br>$\\overline{A} = \\{2,12,14,16,18\\}$<br>$\\overline{B} = \\{4,6,10,14,16\\}$<br>$A - B = \\{4,6,10\\}$<br>$B - A = \\{2,12,18\\}$"
             },
-            { 
-                id: 15, 
-                q: `<b>مثال 4: قياس مخاطر الائتمان الخاصه بالبنك</b><br>
-                    فيما يلى ميزانية لاحد البنوك التجارية في 2025/6/30 بملايين الجنيهات:
-                    <div class="overflow-x-auto"><table class="w-full text-sm text-center border-collapse border border-gray-300 my-4">
-                        <thead>
-                            <tr class="bg-blue-100"><th class="border p-2 border-gray-300">الالتزامات وحقوق الملكية</th><th class="border p-2 border-gray-300">الاصول</th></tr>
-                        </thead>
-                        <tbody>
-                            <tr><td class="border p-2 border-gray-300">300 ودائع</td><td class="border p-2 border-gray-300">40 نقديه وارصده لدى البنوك</td></tr>
-                            <tr><td class="border p-2 border-gray-300">20 مستحق للبنوك</td><td class="border p-2 border-gray-300">400 قروض وسلفيات</td></tr>
-                            <tr><td class="border p-2 border-gray-300">80 مخصص خسائر وقروض</td><td class="border p-2 border-gray-300">30 اوراق ماليه عاديه</td></tr>
-                            <tr><td class="border p-2 border-gray-300">100 حق الملكية</td><td class="border p-2 border-gray-300">20 اوراق تجارية مخصومه (3 شهور)</td></tr>
-                            <tr><td class="border p-2 border-gray-300"></td><td class="border p-2 border-gray-300">10 اصول ثابته</td></tr>
-                            <tr class="font-bold bg-gray-50"><td class="border p-2 border-gray-300">500 اجمالي الخصوم</td><td class="border p-2 border-gray-300">500 اجمالي الاصول</td></tr>
-                        </tbody>
-                    </table></div>
-                    فاذا علمت ان اجمالى قروض الجهاز المصرفي بلغ 5000 مليون جنيه ودرجه تركز القروض داخل الجهاز المصرفي 0.33 ومخصصات القروض 15% ونسبه السيوله القانونية 30%.
-                    <br><br><b>المطلوب:</b> قياس مخاطر الائتمان الخاصه بالبنك.`, 
-                a: `<b>الحل النموذجي:</b><br><br>
-                    <b>1. درجة التركز المصرفي</b> = (قيمة القروض في البنك / قيمة قروض الجهاز المصرفي)<sup>2</sup><br>
-                    = (400 / 5000)<sup>2</sup> = 0.08<sup>2</sup> = <b>0.0064</b><br>
-                    (كلما زادت النسبة كلما كان هناك مخاطر أعلى ولم يتم الالتزام بمتطلبات البنك المركزي).<br><br>
-                    <b>2. معدل نمو القروض المصرفية</b> = (قيمة القروض خلال العام - قيمة القروض في السنة السابقة) / قيمة القروض خلال العام السابق<br>
-                    <b>لا يمكن حسابها</b> لعدم توافر قوائم مالية لسنتين.<br><br>
-                    <b>3. مخصص خسائر القروض</b> = مخصص المخاطر / اجمالي القروض<br>
-                    = 80 / 400 = <b>20%</b><br>
-                    بمقارنة النسبة 20% مع مخصصات القروض المطلوبة 15% نجد أنها أعلى من نسبة مخصصات القروض وفقاً لتعليمات البنك المركزي وبالتالي تعتبر <b>مخاطر مرتفعة</b>.` 
+            {
+                q: "إذا كان $U=\\{1,2,3,4,5,6,7,8\\}$, $A=\\{1,2\\}$, $B=\\{7,8\\}$, $C=\\{1,2,3\\}$. أوجد: $A \\cup B$, $A \\cup C$, $A \\cap C$, $\\overline{A}$, $\\overline{A \\cup B}$",
+                s: "$A \\cup B = \\{1,2,7,8\\}$<br>$A \\cup C = \\{1,2,3\\}$<br>$A \\cap C = \\{1,2\\}$<br>$\\overline{A} = \\{3,4,5,6,7,8\\}$<br>$\\overline{A \\cup B} = \\{3,4,5,6\\}$"
             },
-            { 
-                id: 16, 
-                q: `<b>مثال 5: الالتزام بالمتطلبات القانونية للسيولة والاحتياطي</b><br>
-                    فيما يلي ميزانية لاحد البنوك التجارية في 2025/12/31 بملايين الجنيهات:
-                    <div class="overflow-x-auto"><table class="w-full text-sm text-center border-collapse border border-gray-300 my-4">
-                        <thead>
-                            <tr class="bg-blue-100"><th class="border p-2 border-gray-300">الالتزامات وحقوق الملكية</th><th class="border p-2 border-gray-300">الاصول</th></tr>
-                        </thead>
-                        <tbody>
-                            <tr><td class="border p-2 border-gray-300">17 راس المال</td><td class="border p-2 border-gray-300">10 نقدية بالخزينة</td></tr>
-                            <tr><td class="border p-2 border-gray-300">100 الودائع</td><td class="border p-2 border-gray-300">12 ارصده لدى البنك المركزي</td></tr>
-                            <tr><td class="border p-2 border-gray-300">5 المستحق للبنوك</td><td class="border p-2 border-gray-300">10 ارصده لدى البنوك الاخرى</td></tr>
-                            <tr><td class="border p-2 border-gray-300">5 ارباح العام المنتهى</td><td class="border p-2 border-gray-300">5 اوراق ماليه حكومية</td></tr>
-                            <tr><td class="border p-2 border-gray-300"></td><td class="border p-2 border-gray-300">90 قروض</td></tr>
-                            <tr class="font-bold bg-gray-50"><td class="border p-2 border-gray-300">127 اجمالى الالتزامات وحقوق الملكية</td><td class="border p-2 border-gray-300">127 اجمالى الاصول</td></tr>
-                        </tbody>
-                    </table></div>
-                    <b>المطلوب:</b> معرفة مدى التزام البنك بالمتطلبات القانونية علما بان:
-                    <ul class="list-disc list-inside">
-                        <li>نسبه الاحتياطي القانوني المطلوبة = 25%</li>
-                        <li>نسبه السيوله القانونية المطلوبة = 30%</li>
-                    </ul>`, 
-                a: `<b>الحل النموذجي:</b><br><br>
-                    <b>1. نسبة الاحتياطي القانوني الفعلية</b> = (الارصدة لدى البنك المركزي / الودائع) × 100<br>
-                    = (12 / 100) × 100 = <b>12%</b><br>
-                    المقارنة: النسبة المطلوبة 25%، والفعلية 12%. إذن يوجد <b>عجز</b> مقداره (25 - 12) = <b>13% عجز</b>.<br><br>
-                    <b>2. نسبة السيولة القانونية الفعلية</b> = [(النقديه + الفائض عن الاحتياطي القانوني + ارصده لدى البنوك + اوراق مالية حكومية) / (الودائع + المستحق للبنوك)] × 100<br>
-                    = [(10 + 0 + 10 + 5) / (100 + 5)] × 100<br>
-                    = (25 / 105) × 100 = <b>23.8% (أو بالتقريب 24% كما بالمحاضرة)</b><br>
-                    المقارنة: النسبة المطلوبة 30%، والفعلية 24%. إذن يوجد <b>عجز</b> مقداره (30 - 24) = <b>6% عجز</b>.<br><br>
-                    <b>3. إجمالي الأصول السائلة التي يمتلكها البنك</b><br>
-                    = النقدية + الأرصدة لدى المركزي + الأرصدة لدى البنوك الأخرى + أوراق مالية<br>
-                    = 10 + 12 + 10 + 5 = <b>37 مليون جنيه</b>` 
+            {
+                q: "إذا كانت التكلفة الثابتة 2000 جنيه شهريا، والتكلفة المتغيرة 25 جنيه للوحدة. عبر عن دالة التكلفة كدالة خطية.",
+                s: "التكلفة الكلية (y) تتكون من التكلفة الثابتة مضافاً إليها التكلفة المتغيرة للوحدة مضروبة في عدد الوحدات (x).<br><br> المعادلة: $y = 2000 + 25x$"
+            },
+            {
+                q: "مندوب مبيعات مرتبه الأساسي 500 جنيه ويتقاضى عمولة 8% من المبيعات التي تزيد عن 6000 جنيه. عبر عن دخله الشهري كدالة، وحدد المجال، واحسب الدخل لمبيعات 5000 و 8000.",
+                s: "الدالة: $y = 500 + 0.08x$<br>المجال: $[6000, \\infty[$<br>عند مبيعات 5000: الدخل = 500 جنيه (لأنه لم يتخط 6000).<br>عند مبيعات 8000: الدخل = $500 + 0.08(8000) = 1140$ (وفقاً لطريقة حل البنك)."
+            },
+            {
+                q: "اوجد الحدين الثالث والسابع من المتتابعة 5, 8, 11 ثم اوجد مجموع المائة حد الأولى منها.",
+                s: "الأساس $d = 8 - 5 = 3$.<br>الحد الثالث: $a_3 = 11$<br>الحد السابع: $a_7 = 5 + (7-1)3 = 23$<br>مجموع 100 حد: $S_{100} = \\frac{100}{2} [2(5) + 99(3)] = 15350$"
+            },
+            {
+                q: "اوجد الحدين الثالث والسابع من المتتابعة 5, 15, 45 ثم اوجد مجموع العشر حدود الأولى منها.",
+                s: "متتابعة هندسية أساسها $r = \\frac{15}{5} = 3$.<br>الحد الثالث: $a_3 = 45$<br>الحد السابع: $a_7 = 5(3^{6}) = 3645$<br>مجموع 10 حدود: $S_{10} = 5(\\frac{3^{10} - 1}{3-1}) = 147620$"
+            },
+            {
+                q: "أوجد مجموعة الحل للنظام التالي باستخدام المحددات: $2x+3y=8$, $4x+5y=14$",
+                s: "محدد المعاملات $\\Delta = (2\\times5) - (3\\times4) = 10 - 12 = -2$<br>$\\Delta_x = (8\\times5) - (3\\times14) = 40 - 42 = -2$<br>$\\Delta_y = (2\\times14) - (8\\times4) = 28 - 32 = -4$<br>$x = \\frac{-2}{-2} = 1$<br>$y = \\frac{-4}{-2} = 2$"
+            },
+            {
+                q: "إذا كان $E=[4~3; 1~-2]$, $F=[-8~1; 0~3]$. أوجد E+F, E-F, 2E, 3F",
+                s: "$E+F = [-4~4 ; 1~1]$<br><br>$E-F = [12~2 ; 1~-5]$<br><br>$2E = [8~6 ; 2~-4]$<br><br>$3F = [-24~3 ; 0~9]$"
             }
         ];
 
-        const formulasHTML = `
-            <div class="space-y-6">
-                <!-- 1. قوانين السيولة ومتطلبات البنك المركزي -->
-                <div class="bg-indigo-50 p-5 rounded-xl border border-indigo-200 shadow-sm">
-                    <h3 class="text-xl font-bold text-indigo-900 mb-4 border-b-2 border-indigo-300 pb-2">1. قوانين السيولة ومتطلبات البنك المركزي</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div class="formula-card">
-                            <span class="font-bold text-indigo-800">مفهوم السيولة النسبي =</span>
-                            <span class="frac"><span class="num">الأصول السائلة</span><span class="den">الالتزامات العاجلة (قصيرة الأجل)</span></span>
-                        </div>
-                        <div class="formula-card">
-                            <span class="font-bold text-indigo-800">نسبة الاحتياطي القانوني (الفعلية) =</span>
-                            <span class="frac"><span class="num">الأرصدة لدى البنك المركزي</span><span class="den">إجمالي الودائع</span></span>
-                            <span class="font-bold">× 100</span>
-                        </div>
-                        <div class="formula-card col-span-1 md:col-span-2">
-                            <span class="font-bold text-indigo-800">نسبة السيولة القانونية (الفعلية) =</span>
-                            <span class="frac"><span class="num">النقدية + الفائض عن الاحتياطي + أرصدة البنوك + أ.مالية حكومية</span><span class="den">الودائع + المستحق للبنوك</span></span>
-                            <span class="font-bold">× 100</span>
-                        </div>
-                        <div class="formula-card col-span-1 md:col-span-2">
-                            <span class="font-bold text-indigo-800">نسبة السيولة (التفصيلية للمركزي) =</span>
-                            <span class="frac"><span class="num">نقدية وذهب + أرصدة مركزي + أذون خزانة + شيكات وكوبونات + مستحق على البنوك</span><span class="den">إجمالي الودائع + قروض من المركزي + مستحق للبنوك + شيكات مستحقة الدفع</span></span>
-                            <span class="font-bold">× 100</span>
-                        </div>
-                        <div class="formula-card col-span-1 md:col-span-2">
-                            <span class="font-bold text-indigo-800">نسبة النقدية =</span>
-                            <span class="frac"><span class="num">نقدية + أرصدة لدى البنك المركزي</span><span class="den">إجمالي الودائع + المبالغ المقترضة من المركزي + مستحق للبنوك + شيكات مستحقة الدفع</span></span>
-                            <span class="font-bold">× 100</span>
-                        </div>
-                    </div>
-                </div>
+        // State
+        let score = parseInt(sessionStorage.getItem('quiz_score_v3')) || 0;
+        let answersState = JSON.parse(sessionStorage.getItem('answers_state_v3')) || {};
 
-                <!-- 2. قوانين التحليل المالي للبنوك (الربحية) -->
-                <div class="bg-blue-50 p-5 rounded-xl border border-blue-200 shadow-sm">
-                    <h3 class="text-xl font-bold text-blue-900 mb-4 border-b-2 border-blue-300 pb-2">2. نسب التحليل المالي للبنوك (الربحية)</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div class="formula-card">
-                            <span class="font-bold text-blue-800">هامش سعر الفائدة =</span>
-                            <span class="frac"><span class="num">الفوائد المحصلة - الفوائد المدفوعة</span><span class="den">إجمالي الأصول الإيرادية</span></span>
-                            <span class="font-bold">× 100</span>
-                        </div>
-                        <div class="formula-card">
-                            <span class="font-bold text-blue-800">انتشار سعر الفائدة =</span>
-                            <span class="frac"><span class="num">الفوائد المحصلة</span><span class="den">الأصول الإيرادية</span></span>
-                            <span class="font-bold">-</span>
-                            <span class="frac"><span class="num">الفوائد المدفوعة</span><span class="den">الودائع</span></span>
-                        </div>
-                        <div class="formula-card">
-                            <span class="font-bold text-blue-800">صافي الأعباء الثابتة =</span>
-                            <span class="frac"><span class="num">عائد الخدمات + إيرادات أخرى - مصروفات إدارية وعمومية</span><span class="den">إجمالي الأصول</span></span>
-                            <span class="font-bold">× 100</span>
-                        </div>
-                        <div class="formula-card">
-                            <span class="font-bold text-blue-800">حقوق الملكية المُعدلة =</span>
-                            <span>حقوق الملكية + (0.5 × أرباح العام المنتهي)</span>
-                        </div>
-                        <div class="formula-card">
-                            <span class="font-bold text-blue-800">العائد على حقوق الملكية =</span>
-                            <span class="frac"><span class="num">صافي الربح</span><span class="den">حقوق الملكية المُعدلة</span></span>
-                            <span class="font-bold">× 100</span>
-                        </div>
-                        <div class="formula-card">
-                            <span class="font-bold text-blue-800">العائد على الموارد المتاحة =</span>
-                            <span class="frac"><span class="num">صافي الربح</span><span class="den">حقوق الملكية المُعدلة + الودائع</span></span>
-                            <span class="font-bold">× 100</span>
-                        </div>
-                        <div class="formula-card">
-                            <span class="font-bold text-blue-800">العائد على الأصول (البنوك) =</span>
-                            <span class="frac"><span class="num">صافي الربح</span><span class="den">إجمالي الأصول</span></span>
-                            <span class="font-bold">× 100</span>
-                        </div>
-                        <div class="formula-card">
-                            <span class="font-bold text-blue-800">القوة الإيرادية للموارد المتاحة =</span>
-                            <span class="frac"><span class="num">صافي الربح قبل الضريبة + الفوائد المستحقة</span><span class="den">الخصوم + حقوق الملكية</span></span>
-                        </div>
-                        <div class="formula-card">
-                            <span class="font-bold text-blue-800">الفوائد المكتسبة =</span>
-                            <span class="frac"><span class="num">الفوائد المكتسبة</span><span class="den">الفوائد المستحقة</span></span>
-                            <span class="font-bold">× 100</span>
-                        </div>
-                        <div class="formula-card">
-                            <span class="font-bold text-blue-800">معدل التوزيعات المدفوعة =</span>
-                            <span class="frac"><span class="num">إجمالي التوزيعات</span><span class="den">صافي الربح (أرباح العام)</span></span>
-                            <span class="font-bold">× 100</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 3. كفاية رأس المال ونسب التوظيف للبنوك -->
-                <div class="bg-gray-100 p-5 rounded-xl border border-gray-300 shadow-sm">
-                    <h3 class="text-xl font-bold text-gray-800 mb-4 border-b-2 border-gray-400 pb-2">3. كفاية رأس المال ونسب التوظيف (البنوك)</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div class="formula-card">
-                            <span class="font-bold text-gray-800">الملكية إلى الأصول =</span>
-                            <span class="frac"><span class="num">حقوق الملكية</span><span class="den">إجمالي الأصول</span></span>
-                        </div>
-                        <div class="formula-card">
-                            <span class="font-bold text-gray-800">الملكية إلى الأصول الخطرة =</span>
-                            <span class="frac"><span class="num">حقوق الملكية</span><span class="den">الأصول ذات المخاطر</span></span>
-                        </div>
-                        <div class="formula-card">
-                            <span class="font-bold text-gray-800">الملكية إلى القروض =</span>
-                            <span class="frac"><span class="num">حقوق الملكية</span><span class="den">إجمالي القروض</span></span>
-                        </div>
-                        <div class="formula-card">
-                            <span class="font-bold text-gray-800">الملكية إلى القروض بدون ضمان =</span>
-                            <span class="frac"><span class="num">حقوق الملكية</span><span class="den">القروض بدون ضمان عيني</span></span>
-                        </div>
-                        <div class="formula-card">
-                            <span class="font-bold text-gray-800">الملكية إلى الودائع =</span>
-                            <span class="frac"><span class="num">حقوق الملكية</span><span class="den">مجموع الودائع</span></span>
-                        </div>
-                        <div class="formula-card">
-                            <span class="font-bold text-gray-800">الملكية إلى الاستثمارات =</span>
-                            <span class="frac"><span class="num">حقوق الملكية</span><span class="den">الاستثمارات في الأوراق المالية</span></span>
-                        </div>
-                        <div class="formula-card">
-                            <span class="font-bold text-gray-800">نسبة القروض للودائع =</span>
-                            <span class="frac"><span class="num">إجمالي القروض</span><span class="den">مجموع الودائع</span></span>
-                        </div>
-                        <div class="formula-card">
-                            <span class="font-bold text-gray-800">نسبة الاستثمارات للودائع =</span>
-                            <span class="frac"><span class="num">الأوراق المالية</span><span class="den">مجموع الودائع</span></span>
-                        </div>
-                        <div class="formula-card">
-                            <span class="font-bold text-gray-800">معدل توظيف الودائع =</span>
-                            <span class="frac"><span class="num">القروض + الأوراق المالية</span><span class="den">مجموع الودائع</span></span>
-                        </div>
-                        <div class="formula-card col-span-1 md:col-span-2">
-                            <span class="font-bold text-gray-800">معدل توظيف الموارد =</span>
-                            <span class="frac"><span class="num">القروض + الأوراق المالية</span><span class="den">الودائع + حقوق الملكية + القروض المقترضة</span></span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 4. مخاطر الائتمان بالبنوك -->
-                <div class="bg-orange-50 p-5 rounded-xl border border-orange-200 shadow-sm">
-                    <h3 class="text-xl font-bold text-orange-900 mb-4 border-b-2 border-orange-300 pb-2">4. مخاطر الائتمان الخاصة بالبنك</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div class="formula-card">
-                            <span class="font-bold text-orange-800">درجة التركز المصرفي =</span>
-                            <span class="frac"><span class="num">قيمة القروض في البنك</span><span class="den">قيمة قروض الجهاز المصرفي</span></span>
-                            <span class="font-bold"><sup>2</sup></span>
-                        </div>
-                        <div class="formula-card">
-                            <span class="font-bold text-orange-800">معدل نمو القروض =</span>
-                            <span class="frac"><span class="num">قروض العام الحالي - قروض العام السابق</span><span class="den">قروض العام السابق</span></span>
-                        </div>
-                        <div class="formula-card">
-                            <span class="font-bold text-orange-800">مخصص خسائر القروض =</span>
-                            <span class="frac"><span class="num">مخصص المخاطر</span><span class="den">إجمالي القروض</span></span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 5. التحليل المالي للشركات وتقويم الأداء -->
-                <div class="bg-emerald-50 p-5 rounded-xl border border-emerald-200 shadow-sm">
-                    <h3 class="text-xl font-bold text-emerald-900 mb-4 border-b-2 border-emerald-300 pb-2">5. التحليل المالي للشركات (السيولة، النشاط، المديونية، الربحية)</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div class="formula-card">
-                            <span class="font-bold text-emerald-800">رأس المال العامل =</span>
-                            <span>الأصول المتداولة - الخصوم المتداولة</span>
-                        </div>
-                        <div class="formula-card">
-                            <span class="font-bold text-emerald-800">نسبة التداول =</span>
-                            <span class="frac"><span class="num">الأصول المتداولة</span><span class="den">الخصوم المتداولة</span></span>
-                        </div>
-                        <div class="formula-card">
-                            <span class="font-bold text-emerald-800">نسبة السيولة السريعة =</span>
-                            <span class="frac"><span class="num">الأصول المتداولة - المخزون - المصروفات المقدمة</span><span class="den">الخصوم المتداولة</span></span>
-                        </div>
-                        <div class="formula-card">
-                            <span class="font-bold text-emerald-800">نسبة النقدية للشركات =</span>
-                            <span class="frac"><span class="num">النقدية</span><span class="den">الخصوم المتداولة</span></span>
-                        </div>
-                        <div class="formula-card">
-                            <span class="font-bold text-emerald-800">معدل دوران الأصول =</span>
-                            <span class="frac"><span class="num">صافي المبيعات</span><span class="den">إجمالي الأصول</span></span>
-                        </div>
-                        <div class="formula-card">
-                            <span class="font-bold text-emerald-800">معدل دوران الأصول الثابتة =</span>
-                            <span class="frac"><span class="num">صافي المبيعات</span><span class="den">صافي الأصول الثابتة</span></span>
-                        </div>
-                        <div class="formula-card">
-                            <span class="font-bold text-emerald-800">معدل دوران المخزون =</span>
-                            <span class="frac"><span class="num">تكلفة البضاعة المباعة</span><span class="den">متوسط المخزون</span></span>
-                        </div>
-                        <div class="formula-card">
-                            <span class="font-bold text-emerald-800">معدل دوران الذمم (المدينين) =</span>
-                            <span class="frac"><span class="num">صافي المبيعات الآجلة</span><span class="den">متوسط رصيد الذمم</span></span>
-                        </div>
-                        <div class="formula-card">
-                            <span class="font-bold text-emerald-800">متوسط فترة التحصيل =</span>
-                            <span class="frac"><span class="num">365 (أو عدد أيام السنة)</span><span class="den">معدل دوران الذمم</span></span>
-                        </div>
-                        <div class="formula-card">
-                            <span class="font-bold text-emerald-800">نسبة الاقتراض (الديون للأصول) =</span>
-                            <span class="frac"><span class="num">إجمالي الديون (طويلة وقصيرة)</span><span class="den">إجمالي الأصول</span></span>
-                        </div>
-                        <div class="formula-card">
-                            <span class="font-bold text-emerald-800">نسبة الديون إلى حقوق الملكية =</span>
-                            <span class="frac"><span class="num">إجمالي الديون</span><span class="den">إجمالي حقوق الملكية</span></span>
-                        </div>
-                        <div class="formula-card">
-                            <span class="font-bold text-emerald-800">نسبة تغطية الفوائد =</span>
-                            <span class="frac"><span class="num">الربح قبل الفوائد والضرائب</span><span class="den">الفوائد</span></span>
-                        </div>
-                        <div class="formula-card">
-                            <span class="font-bold text-emerald-800">نسبة مجمل الربح =</span>
-                            <span class="frac"><span class="num">مجمل الربح (المبيعات - التكلفة)</span><span class="den">صافي المبيعات</span></span>
-                        </div>
-                        <div class="formula-card">
-                            <span class="font-bold text-emerald-800">نسبة صافي الربح =</span>
-                            <span class="frac"><span class="num">صافي الدخل بعد الضريبة</span><span class="den">صافي المبيعات</span></span>
-                        </div>
-                        <div class="formula-card">
-                            <span class="font-bold text-emerald-800">العائد على الأصول =</span>
-                            <span class="frac"><span class="num">الربح قبل الفوائد والضرائب</span><span class="den">إجمالي الأصول</span></span>
-                        </div>
-                        <div class="formula-card">
-                            <span class="font-bold text-emerald-800">معدل العائد على الاستثمار =</span>
-                            <span class="frac"><span class="num">صافي الربح</span><span class="den">إجمالي الأصول</span></span>
-                        </div>
-                        <div class="formula-card">
-                            <span class="font-bold text-emerald-800">العائد على حقوق الملاك =</span>
-                            <span class="frac"><span class="num">صافي الدخل</span><span class="den">متوسط حقوق الملاك</span></span>
-                        </div>
-                        <div class="formula-card">
-                            <span class="font-bold text-emerald-800">عائد السهم الواحد =</span>
-                            <span class="frac"><span class="num">صافي الدخل بعد الزكاة والضريبة</span><span class="den">عدد الأسهم العادية</span></span>
-                        </div>
-                        <div class="formula-card">
-                            <span class="font-bold text-emerald-800">نسبة القيمة السوقية للعائد =</span>
-                            <span class="frac"><span class="num">القيمة السوقية للسهم</span><span class="den">عائد السهم الواحد</span></span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 6. قوانين شركات التأمين -->
-                <div class="bg-red-50 p-5 rounded-xl border border-red-200 shadow-sm">
-                    <h3 class="text-xl font-bold text-red-900 mb-4 border-b-2 border-red-300 pb-2">6. قوانين حساب التعويض في شركات التأمين</h3>
-                    <div class="grid grid-cols-1 gap-4">
-                        <div class="formula-card">
-                            <span class="font-bold text-red-800">التعويض (بشرط النسبية) =</span>
-                            <span>الخسائر الفعلية</span>
-                            <span class="font-bold">×</span>
-                            <span class="frac"><span class="num">مبلغ التأمين</span><span class="den">قيمة الشيء المؤمن عليه</span></span>
-                        </div>
-                        <div class="formula-card">
-                            <span class="font-bold text-red-800">التعويض (هلاك كلي / تعدد مؤمنين) =</span>
-                            <span>الخسائر الفعلية</span>
-                            <span class="font-bold">×</span>
-                            <span class="frac"><span class="num">مبلغ التأمين لدى المؤمن</span><span class="den">مجموع مبالغ التأمين</span></span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `;
-
-        // --- State Management ---
-        let state = JSON.parse(sessionStorage.getItem('financeQuizState')) || {
-            tf: {},
-            mcq: {},
-            essay: {},
-            score: 0,
-            totalAnswered: 0
-        };
-
-        function saveState() {
-            sessionStorage.setItem('financeQuizState', JSON.stringify(state));
-            updateScoreDisplay();
-        }
-
-        function updateScoreDisplay() {
-            document.getElementById('score-display').textContent = `${state.score} / ${state.totalAnswered}`;
-        }
-
-        // --- UI Rendering ---
-
-        function switchTab(tabId) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.classList.remove('bg-blue-600', 'border-white');
-                btn.classList.add('border-transparent');
-            });
-            document.getElementById(tabId).classList.add('active');
-            document.getElementById(`tab-${tabId}`).classList.add('bg-blue-600', 'border-white');
-            document.getElementById(`tab-${tabId}`).classList.remove('border-transparent');
-        }
-
-        function toggleHint(elementId) {
-            const hintEl = document.getElementById(elementId);
-            hintEl.classList.toggle('show');
-        }
-
-        function renderTF() {
-            const container = document.getElementById('tf');
-            container.innerHTML = '<h2 class="text-2xl font-bold text-gray-800 border-b pb-2">أولاً: أسئلة صح أم خطأ</h2>';
-            
-            tfQuestions.forEach((q, index) => {
-                const isAnswered = state.tf.hasOwnProperty(q.id);
-                const userAns = state.tf[q.id];
-                const isCorrect = userAns === q.ans;
-                
-                let btnTrueClass = "bg-white border-2 border-gray-300 hover:bg-gray-50 text-gray-700";
-                let btnFalseClass = "bg-white border-2 border-gray-300 hover:bg-gray-50 text-gray-700";
-                let expClass = "explanation-box text-sm mt-3 p-3 rounded-lg border ";
-
-                if (isAnswered) {
-                    if(q.ans === true) { btnTrueClass = "bg-green-500 text-white border-green-500"; }
-                    if(q.ans === false) { btnFalseClass = "bg-green-500 text-white border-green-500"; }
-                    
-                    if(!isCorrect) {
-                        if(userAns === true) btnTrueClass = "bg-red-500 text-white border-red-500";
-                        if(userAns === false) btnFalseClass = "bg-red-500 text-white border-red-500";
-                        expClass += "bg-red-50 text-red-800 border-red-200 show";
-                    } else {
-                        expClass += "bg-green-50 text-green-800 border-green-200 show";
-                    }
-                }
-
-                container.innerHTML += `
-                    <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200">
-                        <div class="flex justify-between items-start gap-4">
-                            <h3 class="text-lg font-semibold flex-1 leading-relaxed">${index + 1}. ${q.text}</h3>
-                            <button onclick="toggleHint('hint-tf-${q.id}')" class="text-yellow-500 hover:text-yellow-600 bg-yellow-50 rounded-full p-2 text-xl" title="تلميح">💡</button>
-                        </div>
-                        <div id="hint-tf-${q.id}" class="hint-box text-sm bg-yellow-100 text-yellow-800 border border-yellow-300 p-3 rounded mt-2">
-                            <strong>تلميح:</strong> ${q.hint}
-                        </div>
-                        <div class="flex gap-4 mt-4">
-                            <button ${isAnswered ? 'disabled' : ''} onclick="handleTF(${q.id}, true)" class="option-btn flex-1 py-2 rounded-lg font-bold transition ${btnTrueClass}">صـح</button>
-                            <button ${isAnswered ? 'disabled' : ''} onclick="handleTF(${q.id}, false)" class="option-btn flex-1 py-2 rounded-lg font-bold transition ${btnFalseClass}">خـطـأ</button>
-                        </div>
-                        <div class="${expClass} ${isAnswered ? 'block' : 'hidden'} mt-3">
-                            <strong>ملاحظة/توضيح:</strong> ${q.exp}
-                        </div>
-                    </div>
-                `;
-            });
-        }
-
-        function handleTF(qId, choice) {
-            if(state.tf.hasOwnProperty(qId)) return;
-            const q = tfQuestions.find(x => x.id === qId);
-            state.tf[qId] = choice;
-            state.totalAnswered++;
-            if(choice === q.ans) state.score++;
-            saveState();
-            renderTF();
-        }
-
-        function renderMCQ() {
-            const container = document.getElementById('mcq');
-            container.innerHTML = '<h2 class="text-2xl font-bold text-gray-800 border-b pb-2">ثانياً: أسئلة اختيار من متعدد</h2>';
-            
-            mcqQuestions.forEach((q, index) => {
-                const isAnswered = state.mcq.hasOwnProperty(q.id);
-                const userAns = state.mcq[q.id];
-                const isCorrect = userAns === q.correct;
-                
-                let expClass = "explanation-box text-sm mt-3 p-3 rounded-lg border ";
-                if (isAnswered) {
-                     expClass += isCorrect ? "bg-green-50 text-green-800 border-green-200 show" : "bg-red-50 text-red-800 border-red-200 show";
-                }
-
-                let optionsHTML = '';
-                q.opts.forEach((opt, optIndex) => {
-                    let btnClass = "bg-white border border-gray-300 hover:bg-gray-50 text-gray-800";
-                    if(isAnswered) {
-                        if(optIndex === q.correct) btnClass = "bg-green-500 text-white border-green-500";
-                        else if(optIndex === userAns && !isCorrect) btnClass = "bg-red-500 text-white border-red-500";
-                    }
-                    
-                    optionsHTML += `
-                        <button ${isAnswered ? 'disabled' : ''} onclick="handleMCQ(${q.id}, ${optIndex})" class="option-btn w-full text-right px-4 py-3 rounded-lg transition ${btnClass}">
-                            ${opt}
-                        </button>
-                    `;
-                });
-
-                container.innerHTML += `
-                    <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200">
-                        <div class="flex justify-between items-start gap-4">
-                            <h3 class="text-lg font-semibold flex-1 leading-relaxed">${index + 1}. ${q.text}</h3>
-                            <button onclick="toggleHint('hint-mcq-${q.id}')" class="text-yellow-500 hover:text-yellow-600 bg-yellow-50 rounded-full p-2 text-xl" title="تلميح">💡</button>
-                        </div>
-                        <div id="hint-mcq-${q.id}" class="hint-box text-sm bg-yellow-100 text-yellow-800 border border-yellow-300 p-3 rounded mt-2">
-                            <strong>تلميح:</strong> ${q.hint}
-                        </div>
-                        <div class="flex flex-col gap-2 mt-4">
-                            ${optionsHTML}
-                        </div>
-                        <div class="${expClass} ${isAnswered ? 'block' : 'hidden'} mt-3">
-                            <strong>ملاحظة/توضيح:</strong> ${q.exp}
-                        </div>
-                    </div>
-                `;
-            });
-        }
-
-        function handleMCQ(qId, choiceIndex) {
-            if(state.mcq.hasOwnProperty(qId)) return;
-            const q = mcqQuestions.find(x => x.id === qId);
-            state.mcq[qId] = choiceIndex;
-            state.totalAnswered++;
-            if(choiceIndex === q.correct) state.score++;
-            saveState();
-            renderMCQ();
-        }
-
-        function renderEssay() {
-            const container = document.getElementById('essay');
-            container.innerHTML = '<h2 class="text-2xl font-bold text-gray-800 border-b pb-2">ثالثاً ورابعاً: الأسئلة المقالية والعملية</h2>';
-            
-            essayQuestions.forEach(q => {
-                const isShown = state.essay[q.id] || false;
-                container.innerHTML += `
-                    <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200">
-                        <h3 class="text-lg font-bold text-blue-900 leading-relaxed mb-3">${q.q}</h3>
-                        <button onclick="toggleEssay(${q.id})" class="text-sm bg-blue-100 hover:bg-blue-200 text-blue-800 font-semibold py-2 px-4 rounded transition">
-                            ${isShown ? 'إخفاء الإجابة النموذجية 🙈' : 'إظهار الإجابة النموذجية 👁️'}
-                        </button>
-                        <div class="mt-4 p-4 bg-gray-50 border-r-4 border-blue-500 rounded text-gray-700 text-base leading-relaxed ${isShown ? 'block' : 'hidden'}">
-                            ${q.a}
-                        </div>
-                    </div>
-                `;
-            });
-        }
-
-        function toggleEssay(qId) {
-            state.essay[qId] = !state.essay[qId];
-            saveState();
-            renderEssay();
-        }
-
-        function renderFormulas() {
-            document.getElementById('formulas').innerHTML = formulasHTML;
+        function updateScore(points) {
+            score += points;
+            sessionStorage.setItem('quiz_score_v3', score);
+            document.getElementById('score-counter').innerText = score;
         }
 
         function resetProgress() {
-            if(confirm("هل أنت متأكد من مسح جميع إجاباتك وإعادة البدء من جديد؟")) {
-                sessionStorage.removeItem('financeQuizState');
-                location.reload();
-            }
+            sessionStorage.clear();
+            location.reload();
         }
 
-        // Initialize App
-        updateScoreDisplay();
-        renderTF();
-        renderMCQ();
-        renderEssay();
-        renderFormulas();
+        function saveAnswer(qId, isCorrect, selectedStr) {
+            answersState[qId] = { correct: isCorrect, selected: selectedStr };
+            sessionStorage.setItem('answers_state_v3', JSON.stringify(answersState));
+        }
 
+        // Render Functions
+        function renderMCQ() {
+            const container = document.getElementById('mcq-container');
+            let html = '';
+            const labels = ['أ', 'ب', 'ج', 'د']; 
+
+            mcqData.forEach((q, idx) => {
+                const qId = 'mcq_' + idx;
+                const state = answersState[qId];
+                let optsHtml = '';
+                
+                q.o.forEach((opt, optIdx) => {
+                    const isAns = (optIdx === q.a);
+                    const label = labels[optIdx] || '';
+                    let btnClass = "w-full text-right p-3 sm:p-4 border rounded-xl transition-all font-bold outline-none flex items-center gap-3 text-sm sm:text-base ";
+                    let labelClass = "px-2.5 py-0.5 rounded text-xs sm:text-sm font-extrabold border ";
+                    
+                    if (state) {
+                        if (isAns) {
+                            btnClass += "bg-green-50 dark:bg-green-900/30 border-green-500 text-green-900 dark:text-green-300 shadow-sm";
+                            labelClass += "bg-green-200 dark:bg-green-800 border-green-300 dark:border-green-700 text-green-800 dark:text-green-100";
+                        } else if (state.selected === opt) {
+                            btnClass += "bg-red-50 dark:bg-red-900/30 border-red-400 text-red-800 dark:text-red-300 line-through opacity-80";
+                            labelClass += "bg-red-200 dark:bg-red-800 border-red-300 dark:border-red-700 text-red-800 dark:text-red-100";
+                        } else {
+                            btnClass += "bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700 text-slate-400 dark:text-slate-500 opacity-60 cursor-not-allowed";
+                            labelClass += "bg-slate-100 dark:bg-slate-700 border-slate-200 dark:border-slate-600 text-slate-400 dark:text-slate-500";
+                        }
+                    } else {
+                        btnClass += "bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:border-blue-400 dark:hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-slate-700 cursor-pointer";
+                        labelClass += "bg-slate-100 dark:bg-slate-700 border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-400";
+                    }
+
+                    optsHtml += `<button ${state ? 'disabled' : ''} onclick="handleMCQ('${qId}', ${optIdx}, ${isAns}, '${opt.replace(/'/g, "\\'")}')" class="${btnClass}">
+                        <span class="${labelClass}">${label}</span>
+                        <span class="math-text">${opt}</span>
+                    </button>`;
+                });
+
+                let feedbackHtml = '';
+                if (state) {
+                    const isCorrect = state.selected === q.o[q.a];
+                    feedbackHtml = `
+                        <div class="mt-4 p-4 rounded-xl border ${isCorrect ? 'bg-green-50 dark:bg-green-900/20 border-green-300 dark:border-green-800 text-green-900 dark:text-green-300' : 'bg-red-50 dark:bg-red-900/20 border-red-300 dark:border-red-800 text-red-900 dark:text-red-300'}">
+                            <h4 class="font-bold text-sm sm:text-base mb-2">${isCorrect ? '✅ إجابة صحيحة' : '❌ إجابة خاطئة'}</h4>
+                            <p class="text-xs sm:text-sm leading-relaxed bg-white/60 dark:bg-slate-800/60 p-3 rounded-lg border border-slate-200/50 dark:border-slate-700/50">
+                                <strong>توضيح:</strong> <span class="math-text">${q.h}</span>
+                            </p>
+                        </div>
+                    `;
+                }
+
+                html += `
+                    <div class="question-card bg-white dark:bg-slate-800 rounded-2xl shadow-sm p-4 sm:p-6 border border-slate-200 dark:border-slate-700">
+                        <div class="flex justify-between items-start mb-4 sm:mb-5 gap-3">
+                            <h3 class="text-sm sm:text-lg font-bold text-slate-800 dark:text-slate-200 leading-loose">
+                                <span class="text-white bg-blue-500 dark:bg-blue-600 px-2.5 py-0.5 rounded-lg ml-2 text-xs sm:text-sm">${idx + 1}</span> 
+                                <span class="math-text">${q.q}</span>
+                            </h3>
+                            <button onclick="toggleHint('${qId}')" class="${state ? 'hidden' : 'block'} text-xs bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-3 py-1.5 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-600 transition whitespace-nowrap border border-slate-200 dark:border-slate-600 font-medium">💡 تلميح</button>
+                        </div>
+                        <div id="hint-${qId}" class="hidden mb-4 p-3 bg-yellow-50 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-300 rounded-xl text-xs sm:text-sm border border-yellow-200 dark:border-yellow-700/50">✨ تلميح: <span class="math-text">${q.h}</span></div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            ${optsHtml}
+                        </div>
+                        ${feedbackHtml}
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        function renderTF() {
+            const container = document.getElementById('tf-container');
+            let html = '';
+            
+            tfData.forEach((q, idx) => {
+                const qId = 'tf_' + idx;
+                const state = answersState[qId];
+                
+                const renderBtn = (isTrueBtn) => {
+                    const isAns = (isTrueBtn === q.a);
+                    const label = isTrueBtn ? "صح ✔" : "خطأ ✖";
+                    let btnClass = "w-full text-center p-3 sm:p-4 border rounded-xl transition-all font-bold text-sm sm:text-base outline-none ";
+                    
+                    if (state) {
+                        if (isAns) {
+                            btnClass += "bg-green-50 dark:bg-green-900/30 border-green-500 text-green-900 dark:text-green-300";
+                        } else if (state.selected === isTrueBtn) {
+                            btnClass += "bg-red-50 dark:bg-red-900/30 border-red-400 text-red-800 dark:text-red-300 opacity-80";
+                        } else {
+                            btnClass += "bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700 text-slate-400 dark:text-slate-500 opacity-60 cursor-not-allowed";
+                        }
+                    } else {
+                        btnClass += "bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:border-green-400 dark:hover:border-green-500 hover:bg-green-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 cursor-pointer";
+                    }
+                    return `<button ${state ? 'disabled' : ''} onclick="handleTF('${qId}', ${isTrueBtn}, ${isAns})" class="${btnClass}">${label}</button>`;
+                };
+
+                let feedbackHtml = '';
+                if (state) {
+                    const isCorrect = state.selected === q.a;
+                    feedbackHtml = `
+                        <div class="mt-4 p-4 rounded-xl border col-span-1 sm:col-span-2 ${isCorrect ? 'bg-green-50 dark:bg-green-900/20 border-green-300 dark:border-green-800 text-green-900 dark:text-green-300' : 'bg-red-50 dark:bg-red-900/20 border-red-300 dark:border-red-800 text-red-900 dark:text-red-300'}">
+                            <h4 class="font-bold text-sm sm:text-base mb-2">${isCorrect ? '✅ إجابة صحيحة' : '❌ إجابة خاطئة'}</h4>
+                            <p class="text-xs sm:text-sm leading-relaxed bg-white/60 dark:bg-slate-800/60 p-3 rounded-lg border border-slate-200/50 dark:border-slate-700/50">
+                                <strong>توضيح:</strong> <span class="math-text">${q.h}</span>
+                            </p>
+                        </div>
+                    `;
+                }
+
+                html += `
+                    <div class="question-card bg-white dark:bg-slate-800 rounded-2xl shadow-sm p-4 sm:p-6 border border-slate-200 dark:border-slate-700">
+                        <div class="flex justify-between items-start mb-4 gap-3">
+                            <h3 class="text-sm sm:text-base font-bold text-slate-800 dark:text-slate-200 leading-loose">
+                                <span class="text-white bg-green-500 dark:bg-green-600 px-2 py-0.5 rounded ml-2 text-xs">${idx + 1}</span> 
+                                <span class="math-text">${q.q}</span>
+                            </h3>
+                            <button onclick="toggleHint('${qId}')" class="${state ? 'hidden' : 'block'} text-xs bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-2 py-1 rounded hover:bg-slate-200 dark:hover:bg-slate-600 transition border border-slate-200 dark:border-slate-600">💡 تلميح</button>
+                        </div>
+                        <div id="hint-${qId}" class="hidden mb-4 p-3 bg-yellow-50 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-300 rounded-xl text-xs sm:text-sm border border-yellow-200 dark:border-yellow-700/50">✨ تلميح: <span class="math-text">${q.h}</span></div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            ${renderBtn(true)}
+                            ${renderBtn(false)}
+                            ${feedbackHtml}
+                        </div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        function renderEssay() {
+            const container = document.getElementById('essay-container');
+            let html = '';
+            
+            essayData.forEach((q, idx) => {
+                const qId = 'essay_' + idx;
+                const state = answersState[qId];
+                
+                html += `
+                    <div class="question-card bg-white dark:bg-slate-800 rounded-2xl shadow-sm p-5 sm:p-8 border-r-4 border-blue-500 border-y border-l border-slate-200 dark:border-slate-700 dark:border-r-blue-500">
+                        <h3 class="text-sm sm:text-lg font-bold text-slate-800 dark:text-slate-200 leading-loose mb-5">
+                            <span class="text-blue-600 dark:text-blue-300 bg-blue-50 dark:bg-blue-900/30 px-2 py-1 rounded text-xs ml-2 border border-blue-100 dark:border-blue-800">تمرين ${idx + 1}</span> 
+                            <br class="hidden sm:block"><br class="hidden sm:block">
+                            <span class="math-text">${q.q}</span>
+                        </h3>
+                        
+                        <button onclick="showEssay('${qId}')" class="${state ? 'hidden' : 'block'} w-full bg-slate-50 dark:bg-slate-700/50 text-blue-600 dark:text-blue-400 font-bold py-3 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-700 transition border border-slate-200 dark:border-slate-600 text-sm sm:text-base">
+                            عرض الحل النموذجي 📝
+                        </button>
+
+                        <div id="sol-${qId}" class="${state ? 'block' : 'hidden'} p-4 sm:p-5 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl mt-4">
+                            <h4 class="font-bold text-sm text-slate-500 dark:text-slate-400 mb-3 border-b border-slate-200 dark:border-slate-700 pb-2">الحل من المحاضرة:</h4>
+                            <div class="text-slate-800 dark:text-slate-200 text-sm sm:text-base leading-loose math-text text-right" dir="rtl">${q.s}</div>
+                        </div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        // Interaction Handlers
+        function handleMCQ(qId, selectedIdx, isCorrect, optStr) {
+            saveAnswer(qId, isCorrect, optStr);
+            if(isCorrect) updateScore(5);
+            renderMCQ();
+            MathJax.typesetPromise();
+        }
+
+        function handleTF(qId, selectedVal, isCorrect) {
+            saveAnswer(qId, isCorrect, selectedVal);
+            if(isCorrect) updateScore(5);
+            renderTF();
+            MathJax.typesetPromise();
+        }
+
+        function showEssay(qId) {
+            saveAnswer(qId, true, 'viewed');
+            renderEssay();
+            MathJax.typesetPromise();
+        }
+
+        function toggleHint(qId) {
+            const el = document.getElementById(`hint-${qId}`);
+            el.classList.toggle('hidden');
+        }
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`tab-${tabId}`).classList.add('active');
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.add('hidden'));
+            document.getElementById(`content-${tabId}`).classList.remove('hidden');
+        }
+
+        // Init
+        window.onload = () => {
+            document.getElementById('score-counter').innerText = score;
+            renderMCQ();
+            renderTF();
+            renderEssay();
+            MathJax.typesetPromise();
+        };
     </script>
 </body>
 </html>
